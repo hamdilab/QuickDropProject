@@ -1,6 +1,6 @@
-package com.catalogservice.Repositories;
+package com.catalogservice.repositories;
 
-import com.catalogservice.Entities.Restaurant;
+import com.catalogservice.entities.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

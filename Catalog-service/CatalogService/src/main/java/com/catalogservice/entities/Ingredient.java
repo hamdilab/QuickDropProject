@@ -1,4 +1,4 @@
-package com.catalogservice.Entities;
+package com.catalogservice.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,25 +10,27 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
+@Table(name = "ingredients")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Categorie {
+public class Ingredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Le nom de la catégorie est obligatoire")
+    @NotBlank(message = "Le nom de l'ingrédient est obligatoire")
     @Column(nullable = false, unique = true)
     private String nom;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String imageUrl;
+    @Column(nullable = false)
+    private boolean allergene = false;
 
-    @OneToMany(mappedBy = "categorie", fetch = FetchType.LAZY)
-    private List<Restaurant> restaurants;
+    @ManyToMany(mappedBy = "ingredients")
+    private List<Produit> produits;
 }

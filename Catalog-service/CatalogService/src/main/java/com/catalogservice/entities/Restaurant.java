@@ -1,4 +1,4 @@
-package com.catalogservice.Entities;
+package com.catalogservice.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

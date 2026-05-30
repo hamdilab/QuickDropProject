@@ -1,4 +1,4 @@
-package com.catalogservice.Dtos;
+package com.catalogservice.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

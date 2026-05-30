@@ -1,4 +1,4 @@
-package com.catalogservice.Dtos;
+package com.catalogservice.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategorieRequest {
+public class IngredientRequest {
 
     @NotBlank(message = "Le nom est obligatoire")
     private String nom;
 
     private String description;
-    private String imageUrl;
+    private boolean allergene;
 }

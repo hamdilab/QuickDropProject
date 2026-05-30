@@ -1,4 +1,4 @@
-package com.catalogservice.Dtos;
+package com.catalogservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,24 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProduitResponse {
+public class RestaurantResponse {
 
     private Long id;
     private String nom;
+    private String adresse;
+    private String ville;
+    private String telephone;
+    private String email;
     private String description;
-    private Double prix;
-    private boolean disponible;
     private String imageUrl;
-    private Integer calories;
-    private Long menuId;
-    private String menuNom;
-    private List<String> ingredients;
+    private boolean actif;
+    private double note;
+    private Long vendeurId;
+    private String categorieNom;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -1,4 +1,4 @@
-package com.catalogservice.Dtos;
+package com.catalogservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

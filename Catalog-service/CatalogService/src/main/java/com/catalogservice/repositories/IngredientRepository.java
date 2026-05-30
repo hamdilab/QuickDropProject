@@ -1,6 +1,6 @@
-package com.catalogservice.Repositories;
+package com.catalogservice.repositories;
 
-import com.catalogservice.Entities.Ingredient;
+import com.catalogservice.entities.Ingredient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
