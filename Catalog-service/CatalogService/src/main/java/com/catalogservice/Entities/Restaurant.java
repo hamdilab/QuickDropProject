@@ -66,6 +66,9 @@ public class Restaurant {
     @JoinColumn(name = "categorie_id")
     private Categorie categorie;
 
+    @Column(nullable = false)
+    private Long vendeurId;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
