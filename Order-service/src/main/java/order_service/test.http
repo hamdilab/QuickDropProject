@@ -1,5 +1,5 @@
 ### 1. CRÉER UNE PREMIÈRE COMMANDE (POST)
-POST http://localhost:8082/api/commandes
+POST http://localhost:8080/api/commandes
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 ###
 
 ### 2. CRÉER UNE DEUXIÈME COMMANDE (Pour avoir du contenu)
-POST http://localhost:8082/api/commandes
+POST http://localhost:8080/api/commandes
 Content-Type: application/json
 
 {
@@ -27,34 +27,34 @@ Content-Type: application/json
 ###
 
 ### 3. LISTER TOUTES LES COMMANDES (GET - Consultation globale)
-GET http://localhost:8082/api/commandes
+GET http://localhost:8080/api/commandes
 
 ###
 
 ### 4. RECHERCHER UNE COMMANDE PAR SON ID (GET - Consultation unique)
 # On cherche la commande avec l'ID 1
-GET http://localhost:8082/api/commandes/1
+GET http://localhost:8080/api/commandes/1
 
 ###
 
 ### 5. METTRE À JOUR LE STATUT D'UNE COMMANDE (PUT - Update)
 # On passe la commande numéro 1 au statut "PREPAREE"
-PUT http://localhost:8082/api/commandes/1/statut?statut=PREPAREE
+PUT http://localhost:8080/api/commandes/1/statut?statut=PREPAREE
 
 ###
 
 ### 6. VÉRIFIER SI L'UPDATE A MARCHÉ (GET par ID)
 # On revérifie l'ID 1 pour voir si le statut a changé
-GET http://localhost:8082/api/commandes/1
+GET http://localhost:8080/api/commandes/1
 
 ###
 
 ### 7. SUPPRIMER UNE COMMANDE (DELETE)
 # On supprime la commande numéro 2
-DELETE http://localhost:8082/api/commandes/2
+DELETE http://localhost:8080/api/commandes/2
 
 ###
 
 ### 8. VÉRIFIER LA SUPPRESSION (GET - Lister à nouveau)
 # La commande 2 ne doit plus apparaître dans la liste
-GET http://localhost:8082/api/commandes
+GET http://localhost:8080/api/commandes
