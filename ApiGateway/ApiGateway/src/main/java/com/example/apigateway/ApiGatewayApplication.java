@@ -21,10 +21,12 @@ public class ApiGatewayApplication {
                 .route("catalog-service", r -> r.path("/api/v1/catalog/**")
                         .filters(f -> f.stripPrefix(2))
                         .uri("lb://CATALOG-SERVICE"))
-                .route("delivery-service", r -> r.path("/api/v1/delivery/**")
-                        .filters(f -> f.stripPrefix(2))
-                        .uri("lb://DELIVERY-SERVICE"))
 
+                .route("delivery-service", r -> r.path("/delivery-service/**")
+                        .filters(f -> f.stripPrefix(1)
+                                .dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
+                                .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST"))
+                        .uri("lb://DELIVERY-SERVICE"))
                 .build();
     }
 }
