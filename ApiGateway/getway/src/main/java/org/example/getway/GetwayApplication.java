@@ -22,6 +22,8 @@ public class GetwayApplication {
                         .uri("lb://Candidat") )
                 .route("Job", r->r.path("/jobs/**")
                         .uri("lb://Job") )
+                .route("User", r->r.path("/api/users/**")
+                        .uri("lb://user") )
                 .build();
     }
 }
