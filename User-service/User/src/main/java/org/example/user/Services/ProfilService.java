@@ -32,16 +32,36 @@ public class ProfilService {
     }
 
     public Profil modifier(Long userId, Profil profilModifie) {
-        Profil profil = getProfilParUserId(userId);
+        Profil profil = profilRepository.findByUserId(userId).orElse(null);
+        if (profil == null) {
+            profil = new Profil();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User non trouvé"));
+            profil.setUser(user);
+        }
         profil.setTelephone(profilModifie.getTelephone());
         profil.setPhoto(profilModifie.getPhoto());
         if (profilModifie.getAdresse() != null) {
             Adresse adresse = profilModifie.getAdresse();
-            if (adresse.getId() != null) {
-                adresse = adresseRepository.findById(adresse.getId())
-                        .orElseThrow(() -> new RuntimeException("Adresse non trouvée"));
+            boolean hasContent = (adresse.getRue() != null && !adresse.getRue().trim().isEmpty()) ||
+                                 (adresse.getVille() != null && !adresse.getVille().trim().isEmpty()) ||
+                                 (adresse.getCodePostal() != null && !adresse.getCodePostal().trim().isEmpty()) ||
+                                 (adresse.getPays() != null && !adresse.getPays().trim().isEmpty());
+            
+            if (hasContent) {
+                if (adresse.getId() != null) {
+                    adresse = adresseRepository.findById(adresse.getId())
+                            .orElseThrow(() -> new RuntimeException("Adresse non trouvée"));
+                    adresse.setRue(profilModifie.getAdresse().getRue());
+                    adresse.setVille(profilModifie.getAdresse().getVille());
+                    adresse.setCodePostal(profilModifie.getAdresse().getCodePostal());
+                    adresse.setPays(profilModifie.getAdresse().getPays());
+                    adresse = adresseRepository.save(adresse);
+                } else {
+                    adresse = adresseRepository.save(adresse);
+                }
+                profil.setAdresse(adresse);
             }
-            profil.setAdresse(adresse);
         }
         return profilRepository.save(profil);
     }

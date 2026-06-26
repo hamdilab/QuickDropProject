@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
 import { KeycloakAuthGuard, KeycloakService } from 'keycloak-angular';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard extends KeycloakAuthGuard {
   constructor(
     protected override readonly router: Router,
-    protected readonly keycloak: KeycloakService
+    protected readonly keycloak: KeycloakService,
+    private auth: AuthService
   ) {
     super(router, keycloak);
   }
@@ -23,7 +25,7 @@ export class AuthGuard extends KeycloakAuthGuard {
     const requiredRoles: string[] = route.data['roles'] ?? [];
     if (requiredRoles.length === 0) return true;
 
-    const hasRole = requiredRoles.some(role => this.roles.includes(role));
+    const hasRole = requiredRoles.some(role => this.auth.hasRole(role));
     if (!hasRole) this.router.navigate(['/dashboard']);
     return hasRole;
   }

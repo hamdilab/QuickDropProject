@@ -46,7 +46,7 @@ import { UserApiService, User } from '../../core/user-api.service';
               <td>{{ user.dateCreation | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>
                 <button class="btn-edit" title="Modifier" (click)="openEditModal(user)">✏️</button>
-                <button class="btn-delete" title="Supprimer" (click)="deleteUser(user)">🗑️</button>
+                <button class="btn-delete" title="Supprimer" (click)="confirmDelete(user)">🗑️</button>
               </td>
             </tr>
           </tbody>
@@ -60,7 +60,7 @@ import { UserApiService, User } from '../../core/user-api.service';
     <!-- Create / Edit Modal -->
     <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
       <div class="modal" (click)="$event.stopPropagation()">
-        <h2>Créer un utilisateur</h2>
+        <h2>{{'Créer un utilisateur' }}</h2>
 
         <div class="grid-2-col">
           <div class="form-group">
@@ -101,6 +101,24 @@ import { UserApiService, User } from '../../core/user-api.service';
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <div class="delete-icon">🗑️</div>
+        <h2>Confirmer la suppression</h2>
+        <p class="delete-message">
+          Êtes-vous sûr de vouloir supprimer <strong>{{ userToDelete?.prenom }} {{ userToDelete?.nom }}</strong> ?
+          <br><small style="color: var(--text-secondary)">Cette action est irréversible.</small>
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+          <button class="btn btn-danger" (click)="executeDelete()" [disabled]="deleting">
+            {{ deleting ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+    </div>
   `,
   styles: [`
     .toast {
@@ -117,6 +135,31 @@ import { UserApiService, User } from '../../core/user-api.service';
       border-color: rgba(239, 68, 68, 0.3);
       color: #fca5a5;
     }
+    .modal-sm {
+      max-width: 420px;
+      text-align: center;
+    }
+    .delete-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .delete-message {
+      color: var(--text-secondary);
+      margin: 0.75rem 0 1.5rem;
+      line-height: 1.6;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-danger:hover:not(:disabled) { opacity: 0.85; }
+    .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
   `]
 })
 export class UsersComponent implements OnInit {
@@ -124,10 +167,14 @@ export class UsersComponent implements OnInit {
   message = '';
   messageType: 'success' | 'error' = 'success';
   saving = false;
+  deleting = false;
 
   showModal = false;
   editingUser: User | null = null;
   userForm: User = this.emptyUser();
+
+  showDeleteModal = false;
+  userToDelete: User | null = null;
 
   constructor(private api: UserApiService) {}
 
@@ -191,15 +238,47 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  deleteUser(user: User): void {
-    if (!confirm(`Supprimer ${user.prenom} ${user.nom} ?`)) return;
+  /** Open styled delete confirmation modal */
+  confirmDelete(user: User): void {
+    this.userToDelete = user;
+    this.showDeleteModal = true;
+  }
 
-    this.api.deleteUser(user.id!).subscribe({
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+    this.userToDelete = null;
+  }
+
+  /** Execute the actual delete after confirmation */
+  executeDelete(): void {
+    if (!this.userToDelete?.id) return;
+    this.deleting = true;
+
+    // Optimistic UI: remove from list immediately
+    const deletedId = this.userToDelete.id;
+    const deletedName = `${this.userToDelete.prenom} ${this.userToDelete.nom}`;
+    this.users = this.users.filter(u => u.id !== deletedId);
+    this.cancelDelete();
+
+    this.api.deleteUser(deletedId).subscribe({
       next: () => {
-        this.showMessage('Utilisateur supprimé', 'success');
+        this.showMessage(`${deletedName} supprimé avec succès`, 'success');
+        this.deleting = false;
+        // Refresh to ensure consistency with backend
         this.loadUsers();
       },
-      error: () => this.showMessage('Erreur lors de la suppression', 'error')
+      error: (err) => {
+        // If 204 No Content comes back as an "error" (Angular quirk), it's actually success
+        if (err.status === 204 || err.status === 200) {
+          this.showMessage(`${deletedName} supprimé avec succès`, 'success');
+          this.loadUsers();
+        } else {
+          // Rollback: reload to restore the user
+          this.showMessage('Erreur lors de la suppression. L\'utilisateur a été restauré.', 'error');
+          this.loadUsers();
+        }
+        this.deleting = false;
+      }
     });
   }
 

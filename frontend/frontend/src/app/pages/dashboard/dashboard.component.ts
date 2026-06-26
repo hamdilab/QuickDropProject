@@ -2,11 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/auth.service';
 import { UserApiService, User } from '../../core/user-api.service';
+import { RouterLink } from '@angular/router';
+
+const KEYCLOAK_TO_APP_ROLE: Record<string, string> = {
+  admin: 'ADMIN',
+  client: 'CLIENT',
+  livreur: 'LIVREUR',
+  restaurateur: 'RESTAURATEUR',
+};
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="page">
       <div class="page-header">
@@ -14,6 +22,7 @@ import { UserApiService, User } from '../../core/user-api.service';
         <p>Bienvenue, <strong>{{ auth.getUsername() }}</strong> 👋</p>
       </div>
 
+      <!-- Admin stats -->
       <div class="stats-grid" *ngIf="auth.isAdmin()">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
@@ -45,12 +54,32 @@ import { UserApiService, User } from '../../core/user-api.service';
         </div>
       </div>
 
-      <div class="welcome-card" *ngIf="!auth.isAdmin()">
+      <!-- Role-specific welcome card for non-admins -->
+      <div class="welcome-card" *ngIf="!auth.isAdmin() && roleResolved">
         <div class="welcome-icon">{{ getRoleIcon() }}</div>
         <h2>Espace {{ getRoleLabel() }}</h2>
-        <p>Utilisez le menu à gauche pour naviguer.</p>
+        <p *ngIf="auth.isClient()">Passez vos commandes et suivez vos livraisons.</p>
+        <p *ngIf="auth.isRestaurateur()">Gérez vos menus et vos commandes entrantes.</p>
+        <p *ngIf="auth.isLivreur()">Mettez à jour votre statut et gérez vos livraisons.</p>
+        <p *ngIf="!auth.isClient() && !auth.isRestaurateur() && !auth.isLivreur()">Utilisez le menu à gauche pour naviguer.</p>
+
+        <div class="quick-actions" *ngIf="auth.isLivreur()">
+          <a routerLink="/livreur" class="btn btn-primary">🚴 Voir mon statut</a>
+          <a routerLink="/profile" class="btn btn-secondary">👤 Mon profil</a>
+        </div>
+        <div class="quick-actions" *ngIf="auth.isClient() || auth.isRestaurateur()">
+          <a routerLink="/profile" class="btn btn-primary">👤 Mon profil</a>
+        </div>
       </div>
 
+      <!-- Loading state while resolving role -->
+      <div class="welcome-card" *ngIf="!auth.isAdmin() && !roleResolved">
+        <div class="welcome-icon">⏳</div>
+        <h2>Chargement...</h2>
+        <p>Récupération de votre profil.</p>
+      </div>
+
+      <!-- Admin: recent users table -->
       <div class="recent-users" *ngIf="auth.isAdmin() && users.length > 0">
         <h2>Derniers utilisateurs</h2>
         <table class="data-table">
@@ -69,7 +98,15 @@ import { UserApiService, User } from '../../core/user-api.service';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    .quick-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  `]
 })
 export class DashboardComponent implements OnInit {
   users: User[] = [];
@@ -77,22 +114,62 @@ export class DashboardComponent implements OnInit {
   livreurCount = 0;
   restaurateurCount = 0;
   clientCount = 0;
+  roleResolved = false;
 
   constructor(public auth: AuthService, private api: UserApiService) {}
 
   ngOnInit(): void {
-    if (this.auth.isAdmin()) {
-      this.api.getAllUsers().subscribe({
-        next: (users) => {
+    this.loadUserAndResolveRole();
+  }
+
+  /**
+   * Resolve the current user from the DB and set the DB role.
+   * This is the single source of truth for role-based UI.
+   */
+  loadUserAndResolveRole(): void {
+    const tokenInfo = this.auth.getTokenInfo();
+
+    this.api.getAllUsers().subscribe({
+      next: (users) => {
+        // Try to match logged-in user by email
+        const found = users.find(u =>
+          u.email.toLowerCase() === tokenInfo.email.toLowerCase() ||
+          u.email.toLowerCase() === tokenInfo.username.toLowerCase()
+        );
+
+        if (found) {
+          this.auth.setUserDbRole(found.role);
+        } else {
+          // Fallback: map Keycloak realm roles to app roles
+          const kcRoles = this.auth.getRoles();
+          const mappedRole = kcRoles
+            .map(r => KEYCLOAK_TO_APP_ROLE[r.toLowerCase()])
+            .find(r => !!r) || 'CLIENT';
+          this.auth.setUserDbRole(mappedRole);
+        }
+
+        this.roleResolved = true;
+
+        // Load stats only for admins
+        if (this.auth.isAdmin()) {
           this.users = users;
           this.totalUsers = users.length;
           this.livreurCount = users.filter(u => u.role === 'LIVREUR').length;
           this.restaurateurCount = users.filter(u => u.role === 'RESTAURATEUR').length;
           this.clientCount = users.filter(u => u.role === 'CLIENT').length;
-        },
-        error: (err) => console.error('Erreur chargement users', err)
-      });
-    }
+        }
+      },
+      error: (err) => {
+        console.error('Erreur chargement users', err);
+        // Even on error, resolve role from Keycloak token
+        const kcRoles = this.auth.getRoles();
+        const mappedRole = kcRoles
+          .map(r => KEYCLOAK_TO_APP_ROLE[r.toLowerCase()])
+          .find(r => !!r) || 'CLIENT';
+        this.auth.setUserDbRole(mappedRole);
+        this.roleResolved = true;
+      }
+    });
   }
 
   getRoleIcon(): string {

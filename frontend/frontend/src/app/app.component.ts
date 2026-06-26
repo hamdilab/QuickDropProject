@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/auth.service';
+import { UserApiService } from './core/user-api.service';
 
 @Component({
   selector: 'app-root',
@@ -52,8 +53,57 @@ import { AuthService } from './core/auth.service';
   `,
   styles: []
 })
-export class AppComponent {
-  constructor(public auth: AuthService) {}
+export class AppComponent implements OnInit {
+  constructor(public auth: AuthService, private api: UserApiService) {}
+
+  ngOnInit(): void {
+    this.loadUserAndResolveRole();
+  }
+
+  loadUserAndResolveRole(): void {
+    const tokenInfo = this.auth.getTokenInfo();
+    this.api.getAllUsers().subscribe({
+      next: (users) => {
+        const found = users.find(u =>
+          u.email.toLowerCase() === tokenInfo.email.toLowerCase() ||
+          u.email.toLowerCase() === tokenInfo.username.toLowerCase()
+        );
+        if (found) {
+          this.auth.setUserDbRole(found.role);
+        } else {
+          const kcRoles = this.auth.getRoles();
+          const mappedRole = kcRoles
+            .map(r => {
+              const m: Record<string, string> = {
+                admin: 'ADMIN',
+                client: 'CLIENT',
+                livreur: 'LIVREUR',
+                restaurateur: 'RESTAURATEUR',
+              };
+              return m[r.toLowerCase()];
+            })
+            .find(r => !!r) || 'CLIENT';
+          this.auth.setUserDbRole(mappedRole);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur chargement users dans AppComponent', err);
+        const kcRoles = this.auth.getRoles();
+        const mappedRole = kcRoles
+          .map(r => {
+            const m: Record<string, string> = {
+              admin: 'ADMIN',
+              client: 'CLIENT',
+              livreur: 'LIVREUR',
+              restaurateur: 'RESTAURATEUR',
+            };
+            return m[r.toLowerCase()];
+          })
+          .find(r => !!r) || 'CLIENT';
+        this.auth.setUserDbRole(mappedRole);
+      }
+    });
+  }
 
   getInitials(): string {
     const name = this.auth.getUsername();

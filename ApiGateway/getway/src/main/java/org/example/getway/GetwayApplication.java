@@ -24,6 +24,10 @@ public class GetwayApplication {
                         .uri("lb://Job") )
                 .route("User", r->r.path("/api/users/**")
                         .uri("lb://user") )
+                .route("Profil", r->r.path("/api/profils/**")
+                        .uri("lb://user") )
+                .route("Livreur", r->r.path("/api/livreurs/**")
+                        .uri("lb://user") )
                 .build();
     }
 }

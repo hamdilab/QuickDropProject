@@ -4,6 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { UserApiService, User, Profil, Adresse } from '../../core/user-api.service';
 
+// Map Keycloak realm roles (lowercase) to app roles
+const KEYCLOAK_TO_APP_ROLE: Record<string, string> = {
+  admin: 'ADMIN',
+  client: 'CLIENT',
+  livreur: 'LIVREUR',
+  restaurateur: 'RESTAURATEUR',
+};
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -18,14 +26,14 @@ import { UserApiService, User, Profil, Adresse } from '../../core/user-api.servi
       <div class="profile-card" *ngIf="user; else loading">
         <div class="profile-avatar-container">
           <div class="profile-avatar-large">
-            <span *ngIf="!profil?.photo">{{ getInitials() }}</span>
-            <img *ngIf="profil?.photo" [src]="profil?.photo" class="profile-avatar-img" alt="Avatar" />
+            <span *ngIf="!profilForm.photo">{{ getInitials() }}</span>
+            <img *ngIf="profilForm.photo" [src]="profilForm.photo" class="profile-avatar-img" alt="Avatar" />
           </div>
           <span class="badge" [class]="'badge-' + user.role.toLowerCase()">{{ user.role }}</span>
           <div style="margin-top: 1rem; width: 100%;">
             <div class="form-group">
               <label>Lien Photo de profil</label>
-              <input [(ngModel)]="tempPhoto" (change)="onPhotoChange()" placeholder="https://example.com/photo.jpg" />
+              <input [(ngModel)]="profilForm.photo" placeholder="https://example.com/photo.jpg" />
             </div>
           </div>
         </div>
@@ -114,34 +122,51 @@ export class ProfileComponent implements OnInit {
 
     this.api.getAllUsers().subscribe({
       next: (users) => {
-        // Match by email (most reliable — email is the Keycloak username)
+        // Match by email or username
         let found = users.find(u =>
-          u.email.toLowerCase() === tokenInfo.email.toLowerCase() ||
-          u.email.toLowerCase() === tokenInfo.username.toLowerCase()
+          (u.email && tokenInfo.email && u.email.toLowerCase() === tokenInfo.email.toLowerCase()) ||
+          (u.email && tokenInfo.username && u.email.toLowerCase() === tokenInfo.username.toLowerCase()) ||
+          (u.nom && tokenInfo.username && u.nom.toLowerCase() === tokenInfo.username.toLowerCase()) ||
+          (u.prenom && tokenInfo.username && u.prenom.toLowerCase() === tokenInfo.username.toLowerCase())
         );
 
         if (found) {
           this.user = found;
+          // Set the role from DB so isAdmin(), isLivreur(), etc. work correctly
+          this.auth.setUserDbRole(found.role);
           this.loadProfile(found.id!);
         } else {
           // User is authenticated via Keycloak but not yet in MySQL — build from token
+          // Try to determine role from Keycloak realm roles
+          const kcRoles = this.auth.getRoles();
+          const mappedRole = kcRoles
+            .map(r => KEYCLOAK_TO_APP_ROLE[r.toLowerCase()])
+            .find(r => !!r) || 'CLIENT';
+
           this.user = {
             nom: tokenInfo.lastName || tokenInfo.username,
             prenom: tokenInfo.firstName,
             email: tokenInfo.email || tokenInfo.username,
-            role: 'CLIENT'
+            role: mappedRole as User['role']
           };
+          this.auth.setUserDbRole(mappedRole);
           this.initEmptyProfile(0);
         }
       },
       error: () => {
         // Gateway/network error — still show data from token
+        const kcRoles = this.auth.getRoles();
+        const mappedRole = kcRoles
+          .map(r => KEYCLOAK_TO_APP_ROLE[r.toLowerCase()])
+          .find(r => !!r) || 'CLIENT';
+
         this.user = {
           nom: tokenInfo.lastName || tokenInfo.username,
           prenom: tokenInfo.firstName,
           email: tokenInfo.email || tokenInfo.username,
-          role: 'CLIENT'
+          role: mappedRole as User['role']
         };
+        this.auth.setUserDbRole(mappedRole);
         this.initEmptyProfile(0);
       }
     });
@@ -199,18 +224,27 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    const hasAddressContent = 
+      (this.adresseForm.rue && this.adresseForm.rue.trim() !== '') ||
+      (this.adresseForm.ville && this.adresseForm.ville.trim() !== '') ||
+      (this.adresseForm.codePostal && this.adresseForm.codePostal.trim() !== '') ||
+      (this.adresseForm.pays && this.adresseForm.pays.trim() !== '');
+
     const updatedProfil: Profil = {
       ...this.profilForm,
       user: this.user,
-      adresse: { ...this.adresseForm }
+      adresse: hasAddressContent ? { ...this.adresseForm } : undefined
     };
 
     this.api.updateProfil(this.user.id, updatedProfil).subscribe({
       next: (saved) => {
         this.profil = saved;
         this.profilForm = { ...saved };
+        this.tempPhoto = saved.photo || '';
         if (saved.adresse) {
           this.adresseForm = { ...saved.adresse };
+        } else {
+          this.adresseForm = { rue: '', ville: '', codePostal: '', pays: '' };
         }
         alert('Profil mis à jour avec succès !');
       },

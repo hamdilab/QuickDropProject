@@ -1,7 +1,10 @@
 package org.example.user.Services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.user.Entities.Profil;
 import org.example.user.Entities.User;
+import org.example.user.repositories.ProfilRepository;
+import org.example.user.repositories.StatusLivreurRepository;
 import org.example.user.repositories.UserRepository;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -9,6 +12,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -19,6 +23,8 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfilRepository profilRepository;
+    private final StatusLivreurRepository statusLivreurRepository;
 
     @Value("${keycloak.server-url}")
     private String serverUrl;
@@ -36,13 +42,15 @@ public class UserService {
     private String clientId;
 
     public User creerUser(User user) {
-        Keycloak keycloak = buildKeycloak();
-
-        UserRepresentation kcUser = buildKcUser(user);
-        Response response = keycloak.realm(realm).users().create(kcUser);
-
-        if (response.getStatus() != 201 && response.getStatus() != 409) {
-            throw new RuntimeException("Failed to create user in Keycloak, status: " + response.getStatus());
+        try {
+            Keycloak keycloak = buildKeycloak();
+            UserRepresentation kcUser = buildKcUser(user);
+            Response response = keycloak.realm(realm).users().create(kcUser);
+            if (response.getStatus() != 201 && response.getStatus() != 409) {
+                System.err.println("Keycloak status code was: " + response.getStatus());
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to register user in Keycloak, continuing with DB save: " + e.getMessage());
         }
 
         user.setDateCreation(LocalDateTime.now());
@@ -116,7 +124,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public void supprimer(Long id) {
+        // 1. Delete livreur status if exists (FK constraint: status_livreur.user_id)
+        statusLivreurRepository.findByUserId(id)
+                .ifPresent(statusLivreurRepository::delete);
+
+        // 2. Delete profil if exists (FK constraint: profils.user_id)
+        profilRepository.findByUserId(id).ifPresent(profil -> {
+            // Null out the user reference first to avoid cascade issues
+            profil.setUser(null);
+            profilRepository.save(profil);
+            profilRepository.delete(profil);
+        });
+
+        // 3. Now safely delete the user
         userRepository.deleteById(id);
     }
 }
