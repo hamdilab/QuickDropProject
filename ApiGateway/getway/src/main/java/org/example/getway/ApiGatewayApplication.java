@@ -1,4 +1,4 @@
-package com.example.apigateway;
+package org.example.getway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,8 +18,8 @@ public class ApiGatewayApplication {
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("catalog-service", r -> r.path("/api/v1/catalog/**")
-                        .filters(f -> f.stripPrefix(2))
+                .route("catalog-service", r -> r.path("/catalog/**")
+                        .filters(f -> f.stripPrefix(1))
                         .uri("lb://CATALOG-SERVICE"))
 
                 .route("delivery-service", r -> r.path("/delivery-service/**")
