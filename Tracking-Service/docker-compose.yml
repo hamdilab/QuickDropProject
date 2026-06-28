@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # MongoDB for Tracking Service
+  mongodb:
+    image: mongo:7.0
+    container_name: quickdrop_tracking_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: quickdrop_tracking
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - quickdrop_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # MongoDB Express (optional - Web UI for MongoDB)
+  mongodb-express:
+    image: mongo-express:1.0
+    container_name: quickdrop_tracking_mongo_express
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - quickdrop_network
+
+  # Eureka Service Registry
+  eureka-server:
+    image: openjdk:17-slim
+    container_name: quickdrop_eureka_server
+    working_dir: /app
+    command: ["java", "-jar", "eureka-server.jar"]
+    ports:
+      - "8761:8761"
+    networks:
+      - quickdrop_network
+    # Note: You'll need to build and add the eureka-server jar
+    # For now, this is commented out
+    # depends_on:
+    #   mongodb:
+    #     condition: service_healthy
+
+networks:
+  quickdrop_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
