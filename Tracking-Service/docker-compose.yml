@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # MongoDB for Tracking Service
@@ -50,10 +50,22 @@ services:
     command: ["java", "-jar", "eureka-server.jar"]
     ports:
       - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eureka-server
+      - SERVER_PORT=8761
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    volumes:
+      - ./eureka-server.jar:/app/eureka-server.jar
     networks:
       - quickdrop_network
-    # Note: You'll need to build and add the eureka-server jar
-    # For now, this is commented out
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/eureka/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Uncomment after building eureka-server.jar
     # depends_on:
     #   mongodb:
     #     condition: service_healthy

@@ -85,28 +85,96 @@ Tracking Service is a microservice in the QuickDrop delivery platform that handl
 - Java 17 or higher
 - Maven 3.6+
 - MongoDB 7.0+
-- Docker (optional, for running MongoDB)
+- Docker (optional, for running MongoDB and Eureka)
 
-### Running MongoDB with Docker
+### Running MongoDB and Eureka with Docker
+
 ```bash
+# Start MongoDB only
 docker-compose up -d mongodb
+
+# Start MongoDB and MongoDB Express (Web UI)
+docker-compose up -d mongodb mongodb-express
+
+# To build Eureka server first (you need to build it separately):
+cd ../Eureka/EurekaDernier
+./mvnw clean package
+# Copy the JAR to Tracking-Service directory
+cp target/EurekaDernier-0.0.1-SNAPSHOT.jar ../Tracking-Service/eureka-server.jar
+
+# Then start Eureka
+docker-compose up -d eureka-server
 ```
 
 ### Running the Application
+
+**Option 1: With Eureka (Default)**
 ```bash
+# Make sure Eureka server is running on port 8761
 ./mvnw spring-boot:run
 ```
 
-### Access Swagger UI
-Once the application is running, access Swagger UI at:
+**Option 2: Local Mode (Without Eureka)**
+```bash
+# Run with local profile to disable Eureka
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+**Option 3: Development Mode**
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+**Option 4: Production Mode**
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+```
+
+### Environment Variables
+
+You can override configuration using environment variables:
+
+```bash
+# Custom MongoDB connection
+export MONGODB_HOST=your-mongodb-host
+export MONGODB_PORT=27017
+export MONGODB_DATABASE=quickdrop_tracking
+
+# Custom Eureka configuration
+export EUREKA_URL=http://your-eureka-server:8761/eureka/
+export EUREKA_HOSTNAME=your-eureka-hostname
+
+# Custom server port
+export SERVER_PORT=8084
+
+# Disable Eureka for testing
+export EUREKA_REGISTER=false
+export EUREKA_FETCH=false
+```
+
+### Verify Services are Running
+
+**Eureka Service Registry:**
+```
+http://localhost:8761
+```
+You should see "tracking-service" registered when your service is running.
+
+**Swagger UI:**
 ```
 http://localhost:8084/swagger-ui.html
 ```
 
-### API Documentation
-OpenAPI documentation is available at:
+**API Documentation:**
 ```
 http://localhost:8084/api-docs
+```
+
+**MongoDB Express (Web UI):**
+```
+http://localhost:8081
+Username: admin
+Password: admin123
 ```
 
 ## Database Schema
