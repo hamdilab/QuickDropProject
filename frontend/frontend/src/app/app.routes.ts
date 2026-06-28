@@ -27,5 +27,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['LIVREUR', 'ADMIN'] }
   },
+  {
+    path: 'historique',
+    loadComponent: () => import('./pages/Delivery/historique.component').then(m => m.HistoriqueComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['LIVREUR', 'ADMIN'] }
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];

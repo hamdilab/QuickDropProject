@@ -1,0 +1,311 @@
+/* --- STRUCTURE ET TITRES --- */
+.app-container {
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+/* --- BLOC D'INFORMATION CLIENT --- */
+.client-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.client-link {
+  font-weight: 600;
+  color: #1e293b;
+  text-decoration: none;
+}
+
+.client-link:hover {
+  text-decoration: underline;
+  color: #3b82f6;
+}
+
+.order-date-sub {
+  font-size: 11px;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+/* --- STATUTS ET COMPTEURS --- */
+.stats-counter {
+  background: #f8fafc;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.counter-number {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #3b82f6;
+}
+
+.counter-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* --- COLORATION DYNAMIQUE PAR STATUT --- */
+
+/* En attente (PENDING) -> Orange */
+.timeline-card-simple.pending {
+  border-left: 4px solid #f59e0b;
+}
+.status-pill.pending {
+  background: #fef3c7;
+  color: #d97706;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.state-pending .timeline-badge {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+/* Assigné (ASSIGNED) -> Bleu */
+.timeline-card-simple.assigned {
+  border-left: 4px solid #3b82f6;
+}
+.status-pill.assigned {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.state-assigned .timeline-badge {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Livré (DELIVERED) -> Vert */
+.timeline-card-simple.delivered {
+  border-left: 4px solid #10b981;
+}
+.status-pill.delivered {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.state-delivered .timeline-badge {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+/* --- STRUCTURE TIMELINE --- */
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.timeline-badge {
+  position: absolute;
+  left: -30px;
+  top: 5px;
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 50px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.timeline-card-simple {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- CONTENEUR GLOBAL DU MODAL (OVERLAY DE FOND BLUR) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* --- LE BLOC MODAL --- */
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: slideIn 0.2s ease-out;
+}
+
+/* --- ENTÊTE (HEADER) --- */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  color: #0f172a;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-icon-btn:hover {
+  color: #0f172a;
+}
+
+/* --- LISTE DES DÉTAILS --- */
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.detail-item strong {
+  color: #0f172a;
+  font-weight: 600;
+  min-width: 90px;
+}
+
+.detail-item .icon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* --- LE BADGE DE STATUT DANS LA MODALE --- */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.assigned {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.delivered {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* --- BOUTON FERMER --- */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-close-modal {
+  width: 100%;
+  background-color: #1e293b;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-close-modal:hover {
+  background-color: #0f172a;
+}
+
+.btn-close-modal:active {
+  transform: scale(0.98);
+}
+
+/* --- ANIMATION D'APPARITION --- */
+@keyframes slideIn {
+  from {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
