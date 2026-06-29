@@ -12,7 +12,7 @@ import { UserApiService } from './core/user-api.service';
     <div class="app-shell">
       <nav class="sidebar">
         <div class="logo">
-          <span class="logo-icon">🚀</span>
+          <span class="logo-icon">🍔</span>
           <span class="logo-text">QuickDrop</span>
         </div>
         <ul class="nav-links">

@@ -28,7 +28,7 @@
 
 .client-link:hover {
   text-decoration: underline;
-  color: #3b82f6;
+  color: #f97316;
 }
 
 .order-date-sub {
@@ -50,7 +50,7 @@
   display: block;
   font-size: 24px;
   font-weight: bold;
-  color: #3b82f6;
+  color: #f97316;
 }
 
 .counter-label {
@@ -77,21 +77,21 @@
   color: #f59e0b;
 }
 
-/* Assigné (ASSIGNED) -> Bleu */
+/* Assigné (ASSIGNED) -> Orange chaud */
 .timeline-card-simple.assigned {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #f97316;
 }
 .status-pill.assigned {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #ffedd5;
+  color: #c2410c;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
 }
 .state-assigned .timeline-badge {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: #f97316;
+  color: #f97316;
 }
 
 /* Livré (DELIVERED) -> Vert */
@@ -261,8 +261,8 @@
 }
 
 .status-badge.assigned {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: #ffedd5;
+  color: #c2410c;
 }
 
 .status-badge.delivered {
@@ -278,7 +278,7 @@
 
 .btn-close-modal {
   width: 100%;
-  background-color: #1e293b;
+  background: linear-gradient(135deg, #f97316 0%, #eab308 100%);
   color: #ffffff;
   border: none;
   padding: 12px 24px;
@@ -290,7 +290,7 @@
 }
 
 .btn-close-modal:hover {
-  background-color: #0f172a;
+  background: linear-gradient(135deg, #ea580c 0%, #ca8a04 100%);
 }
 
 .btn-close-modal:active {
