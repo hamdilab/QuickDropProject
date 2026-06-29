@@ -9,33 +9,63 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class ApiGatewayApplication {
+public class GetwayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApiGatewayApplication.class, args);
+        SpringApplication.run(GetwayApplication.class, args);
     }
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route("Candidat", r -> r.path("/candidats/**")
-                        .uri("lb://Candidat"))
-                .route("Job", r -> r.path("/jobs/**")
-                        .uri("lb://Job"))
-                .route("User", r -> r.path("/api/users/**")
-                        .uri("lb://user"))
-                .route("Profil", r -> r.path("/api/profils/**")
-                        .uri("lb://user"))
-                .route("Livreur", r -> r.path("/api/livreurs/**")
-                        .uri("lb://user"))
-                .route("catalog-service", r -> r.path("/api/v1/catalog/**")
-                        .filters(f -> f.stripPrefix(2))
-                        .uri("lb://CATALOG-SERVICE"))
-                .route("delivery-service", r -> r.path("/delivery-service/**")
-                        .filters(f -> f.stripPrefix(1)
-                                .dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
-                                .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST"))
-                        .uri("lb://DELIVERY-SERVICE"))
-                .build();
+        return builder
+            .routes()
+            .route("Candidat", r ->
+                r.path("/candidats/**").uri("lb://Candidat")
+            )
+            .route("Job", r -> r.path("/jobs/**").uri("lb://Job"))
+            .route("User", r -> r.path("/api/users/**").uri("lb://user"))
+            .route("Profil", r -> r.path("/api/profils/**").uri("lb://user"))
+            .route("Livreur", r -> r.path("/api/livreurs/**").uri("lb://user"))
+            .route("catalog-service", r ->
+                r
+                    .path("/api/v1/catalog/**")
+                    .filters(f -> f.stripPrefix(2))
+                    .uri("lb://CATALOG-SERVICE")
+            )
+            .route("delivery-service", r ->
+                r
+                    .path("/delivery-service/**")
+                    .filters(f ->
+                        f
+                            .stripPrefix(1)
+                            .dedupeResponseHeader(
+                                "Access-Control-Allow-Origin",
+                                "RETAIN_FIRST"
+                            )
+                            .dedupeResponseHeader(
+                                "Access-Control-Allow-Credentials",
+                                "RETAIN_FIRST"
+                            )
+                    )
+                    .uri("lb://DELIVERY-SERVICE")
+            )
+            .route("tracking-service", r ->
+                r
+                    .path("/tracking-service/**")
+                    .filters(f ->
+                        f
+                            .stripPrefix(1)
+                            .dedupeResponseHeader(
+                                "Access-Control-Allow-Origin",
+                                "RETAIN_FIRST"
+                            )
+                            .dedupeResponseHeader(
+                                "Access-Control-Allow-Credentials",
+                                "RETAIN_FIRST"
+                            )
+                    )
+                    .uri("lb://TRACKING-SERVICE")
+            )
+            .build();
     }
 }
