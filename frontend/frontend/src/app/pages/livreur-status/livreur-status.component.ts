@@ -108,10 +108,10 @@ interface LivreurWithStatus {
   `,
   styles: [`
     .status-select {
-      background: rgba(255, 255, 255, 0.05);
+      background: #ffffff;
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-sm);
-      color: #fff;
+      color: var(--text-primary);
       padding: 0.4rem 0.8rem;
       font-size: 0.85rem;
       cursor: pointer;
