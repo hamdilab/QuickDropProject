@@ -1,0 +1,78 @@
+<div class="tracking-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>🗺️ Suivi en Temps Réel</h1>
+      <p>Carte interactive des livreurs disponibles</p>
+    </div>
+    <div
+      class="connection-status"
+      [class.connected]="connectionStatus === 'En ligne'"
+    >
+      <span class="status-dot"></span>
+      {{ connectionStatus }}
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div class="map-container">
+    <div #map class="map"></div>
+
+    <!-- Loading Overlay -->
+    <div *ngIf="isConnecting" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Connexion au service de tracking...</p>
+    </div>
+  </div>
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <!-- Status Selection -->
+    <div class="status-section">
+      <h3>Mon Statut</h3>
+      <div class="status-buttons">
+        <button
+          *ngFor="let status of statuses"
+          (click)="changeStatus(status.value)"
+          [class.active]="currentStatus === status.value"
+          [style.border-color]="status.color"
+          class="status-btn"
+        >
+          {{ status.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+      <h3>Actions</h3>
+      <button (click)="getCurrentLocation()" class="action-btn primary">
+        📍 Ma Position
+      </button>
+      <button (click)="findNearbyDrivers()" class="action-btn secondary">
+        🚴 Trouver Livreurs Proches
+      </button>
+    </div>
+
+    <!-- Nearby Drivers -->
+    <div *ngIf="nearbyDrivers.length > 0" class="nearby-drivers">
+      <h3>🚴 Livreurs à proximité ({{ nearbyDrivers.length }})</h3>
+      <div class="drivers-list">
+        <div *ngFor="let driver of nearbyDrivers" class="driver-card">
+          <div class="driver-info">
+            <strong>Livreur {{ driver.driverId }}</strong>
+            <span class="distance" *ngIf="driver.distanceFromTarget">
+              {{ driver.distanceFromTarget / 1000 | number: "1.1" }} km
+            </span>
+          </div>
+          <div
+            class="driver-status"
+            [style.color]="getStatusColor(driver.status)"
+          >
+            {{ driver.status }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
