@@ -125,15 +125,15 @@ import { UserApiService, User } from '../../core/user-api.service';
       padding: 0.85rem 1.25rem;
       border-radius: var(--radius-md);
       margin-bottom: 1.5rem;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #047857;
       animation: fadeIn 0.3s ease-out;
     }
     .toast-error {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.25);
+      color: #dc2626;
     }
     .modal-sm {
       max-width: 420px;

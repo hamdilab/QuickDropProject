@@ -28,9 +28,9 @@ public class ApiGatewayApplication {
                         .uri("lb://user"))
                 .route("Livreur", r -> r.path("/api/livreurs/**")
                         .uri("lb://user"))
-                .route("catalog-service", r -> r.path("/api/v1/catalog/**")
-                        .filters(f -> f.stripPrefix(2))
-                        .uri("lb://CATALOG-SERVICE"))
+                .route("catalog-service", r -> r.path("/catalog/**")
+                        .uri("lb://CATALOGSERVICE"))
+
                 .route("delivery-service", r -> r.path("/delivery-service/**")
                         .filters(f -> f.stripPrefix(1)
                                 .dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
