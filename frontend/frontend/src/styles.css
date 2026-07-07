@@ -131,6 +131,20 @@ body {
   font-size: 1.2rem;
 }
 
+.nav-section {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem 0.25rem;
+  list-style: none;
+}
+
+.nav-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
 /* User Info Section in Sidebar */
 .user-info {
   margin-top: auto;

@@ -9,18 +9,17 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class ApiGatewayApplication {
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApiGatewayApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("catalog-service", r -> r.path("/catalog/**")
-                        .filters(f -> f.stripPrefix(1))
-                        .uri("lb://CATALOG-SERVICE"))
+                        .uri("lb://CATALOGSERVICE"))
 
                 .route("delivery-service", r -> r.path("/delivery-service/**")
                         .filters(f -> f.stripPrefix(1)

@@ -42,6 +42,9 @@ public class CategorieService {
     public CategorieResponse modifier(Long id, CategorieRequest request) {
         Categorie categorie = categorieRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Catégorie introuvable"));
+        if (categorieRepository.existsByNomAndIdNot(request.getNom(), id)) {
+            throw new IllegalArgumentException("Cette categorie existe deja");
+        }
         categorie.setNom(request.getNom());
         categorie.setDescription(request.getDescription());
         categorie.setImageUrl(request.getImageUrl());

@@ -36,6 +36,39 @@ import { UserApiService } from './core/user-api.service';
               <span class="icon">🚴</span> Statut Livreur
             </a>
           </li>
+          <li class="nav-section" *ngIf="auth.isAdmin() || auth.isRestaurateur() || auth.isClient()">
+            <span class="nav-section-label">Catalogue</span>
+          </li>
+          <li *ngIf="auth.isClient() || auth.isAdmin() || auth.isRestaurateur()">
+            <a routerLink="/catalog/browse" routerLinkActive="active">
+              <span class="icon">🛒</span> Découvrir
+            </a>
+          </li>
+          <li *ngIf="auth.isAdmin()">
+            <a routerLink="/catalog/categories" routerLinkActive="active">
+              <span class="icon">🏷️</span> Catégories
+            </a>
+          </li>
+          <li *ngIf="auth.isAdmin() || auth.isRestaurateur()">
+            <a routerLink="/catalog/restaurants" routerLinkActive="active">
+              <span class="icon">🍽️</span> Restaurants
+            </a>
+          </li>
+          <li *ngIf="auth.isAdmin() || auth.isRestaurateur()">
+            <a routerLink="/catalog/menus" routerLinkActive="active">
+              <span class="icon">📋</span> Menus
+            </a>
+          </li>
+          <li *ngIf="auth.isAdmin() || auth.isRestaurateur()">
+            <a routerLink="/catalog/produits" routerLinkActive="active">
+              <span class="icon">🍕</span> Produits
+            </a>
+          </li>
+          <li *ngIf="auth.isAdmin() || auth.isRestaurateur()">
+            <a routerLink="/catalog/ingredients" routerLinkActive="active">
+              <span class="icon">🥬</span> Ingrédients
+            </a>
+          </li>
         </ul>
         <div class="user-info">
           <div class="user-avatar">{{ getInitials() }}</div>
@@ -59,7 +92,9 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserAndResolveRole();
   }
-
+/**
+ * 
+ 
   loadUserAndResolveRole(): void {
     const tokenInfo = this.auth.getTokenInfo();
     this.api.getAllUsers().subscribe({
@@ -104,7 +139,11 @@ export class AppComponent implements OnInit {
       }
     });
   }
-
+*/
+loadUserAndResolveRole(): void {
+  // Force le rôle admin pour le test local :
+  this.auth.setUserDbRole('ADMIN');
+}
   getInitials(): string {
     const name = this.auth.getUsername();
     return name ? name.substring(0, 2).toUpperCase() : 'U';
