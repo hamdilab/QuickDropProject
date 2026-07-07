@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #fed7aa;
+  border-bottom: 2px solid #f1f5f9;
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
@@ -28,7 +28,7 @@
 
 .client-link:hover {
   text-decoration: underline;
-  color: #ea580c;
+  color: #f97316;
 }
 
 .order-date-sub {
@@ -39,18 +39,18 @@
 
 /* --- STATUTS ET COMPTEURS --- */
 .stats-counter {
-  background: #fff7ed;
+  background: #f8fafc;
   padding: 10px 20px;
   border-radius: 8px;
   text-align: center;
-  border: 1px solid #fed7aa;
+  border: 1px solid #e2e8f0;
 }
 
 .counter-number {
   display: block;
   font-size: 24px;
   font-weight: bold;
-  color: #ea580c;
+  color: #f97316;
 }
 
 .counter-label {
@@ -79,7 +79,7 @@
 
 /* Assigné (ASSIGNED) -> Orange chaud */
 .timeline-card-simple.assigned {
-  border-left: 4px solid #ea580c;
+  border-left: 4px solid #f97316;
 }
 .status-pill.assigned {
   background: #ffedd5;
@@ -90,8 +90,8 @@
   font-weight: 500;
 }
 .state-assigned .timeline-badge {
-  border-color: #ea580c;
-  color: #ea580c;
+  border-color: #f97316;
+  color: #f97316;
 }
 
 /* Livré (DELIVERED) -> Vert */
@@ -164,7 +164,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(28, 25, 23, 0.4);
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -278,7 +278,7 @@
 
 .btn-close-modal {
   width: 100%;
-  background: linear-gradient(135deg, #ea580c 0%, #d97706 100%);
+  background: linear-gradient(135deg, #f97316 0%, #eab308 100%);
   color: #ffffff;
   border: none;
   padding: 12px 24px;
@@ -290,7 +290,7 @@
 }
 
 .btn-close-modal:hover {
-  filter: brightness(1.05);
+  background: linear-gradient(135deg, #ea580c 0%, #ca8a04 100%);
 }
 
 .btn-close-modal:active {

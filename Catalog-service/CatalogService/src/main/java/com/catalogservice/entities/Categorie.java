@@ -27,6 +27,7 @@ public class Categorie {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     @OneToMany(mappedBy = "categorie", fetch = FetchType.LAZY)

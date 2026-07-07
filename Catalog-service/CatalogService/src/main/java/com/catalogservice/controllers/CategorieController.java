@@ -5,6 +5,7 @@ import com.catalogservice.dtos.CategorieResponse;
 import com.catalogservice.services.CategorieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/catalog/categories")
 @RequiredArgsConstructor
 public class CategorieController {
 
     private final CategorieService categorieService;
+
+    @Value("${welcome.message}")
+    private String welcomeMessage;
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return welcomeMessage;
+    }
 
     @PostMapping
     public ResponseEntity<CategorieResponse> creer(@Valid @RequestBody CategorieRequest request) {
