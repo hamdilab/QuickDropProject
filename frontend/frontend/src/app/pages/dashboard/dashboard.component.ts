@@ -67,8 +67,14 @@ const KEYCLOAK_TO_APP_ROLE: Record<string, string> = {
           <a routerLink="/livreur" class="btn btn-primary">🚴 Voir mon statut</a>
           <a routerLink="/profile" class="btn btn-secondary">👤 Mon profil</a>
         </div>
-        <div class="quick-actions" *ngIf="auth.isClient() || auth.isRestaurateur()">
-          <a routerLink="/profile" class="btn btn-primary">👤 Mon profil</a>
+        <div class="quick-actions" *ngIf="auth.isClient()">
+          <a routerLink="/catalog/browse" class="btn btn-primary">🛒 Découvrir les restaurants</a>
+          <a routerLink="/profile" class="btn btn-secondary">👤 Mon profil</a>
+        </div>
+        <div class="quick-actions" *ngIf="auth.isRestaurateur()">
+          <a routerLink="/catalog/restaurants" class="btn btn-primary">🍽️ Mes restaurants</a>
+          <a routerLink="/catalog/menus" class="btn btn-secondary">📋 Menus</a>
+          <a routerLink="/catalog/produits" class="btn btn-secondary">🍕 Produits</a>
         </div>
       </div>
 
