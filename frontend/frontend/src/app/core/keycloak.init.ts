@@ -10,8 +10,10 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
       },
       initOptions: {
         onLoad: 'login-required',
+        checkLoginIframe: false,
       },
       enableBearerInterceptor: true,
       bearerExcludedUrls: ['/assets'],
     });
 }
+
