@@ -1,6 +1,8 @@
 import { KeycloakService } from 'keycloak-angular';
 
-export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boolean> {
+export function initializeKeycloak(
+  keycloak: KeycloakService,
+): () => Promise<boolean> {
   return () =>
     keycloak.init({
       config: {
@@ -9,9 +11,12 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
         clientId: 'frontend-client',
       },
       initOptions: {
-        onLoad: 'login-required',
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri: undefined, // 🔥 DÉSACTIVE LE CHECK IFRAME QUI PLANTE
+        flow: 'standard',
+        pkceMethod: 'S256',
       },
       enableBearerInterceptor: true,
-      bearerExcludedUrls: ['/assets'],
+      bearerExcludedUrls: ['/assets', '/public'],
     });
 }
