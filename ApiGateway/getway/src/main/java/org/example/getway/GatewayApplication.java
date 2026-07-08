@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class GetwayApplication {
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GetwayApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
     @Bean
