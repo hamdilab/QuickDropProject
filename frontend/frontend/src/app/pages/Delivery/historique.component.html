@@ -1,0 +1,87 @@
+<div class="app-container">
+  <main class="history-area">
+    <header class="history-header">
+      <div class="header-titles">
+        <h1>Historique des Commandes</h1>
+      </div>
+
+      <div class="stats-counter">
+        <span class="counter-number">{{ deliveries().length }}</span>
+        <span class="counter-label">Total Commandes</span>
+      </div>
+    </header>
+
+    <div *ngIf="deliveries().length === 0" class="empty-timeline">
+      <p>Aucune commande enregistrée dans l'historique.</p>
+    </div>
+
+    <div *ngIf="deliveries().length > 0" class="timeline">
+      <div class="timeline-track"></div>
+
+      <div *ngFor="let item of deliveries()" class="timeline-item" [ngClass]="'state-' + item.status?.toLowerCase()">
+        <div class="timeline-badge">
+          <span>#{{ item.id }}</span>
+        </div>
+
+        <div class="timeline-card-simple" [ngClass]="item.status?.toLowerCase()">
+          <div class="card-main-info">
+            <div class="client-info-block">
+              <a href="#" class="client-link" (click)="onOpenDetails(item, $event)">
+                {{ item.name }}
+              </a>
+              <div class="order-date-sub">
+                {{ item.deliveryDate | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+            </div>
+            
+            <span class="status-pill" [ngClass]="item.status?.toLowerCase()">
+              {{ item.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" *ngIf="selectedDelivery()" (click)="onCloseDetails()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📋 Détails de la Commande #{{ selectedDelivery()?.id }}</h2>
+        <button class="btn-close" (click)="onCloseDetails()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detail-row">
+          <strong>👤 Client :</strong>
+          <span>{{ selectedDelivery()?.name }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>📍 Adresse :</strong>
+          <span>{{ selectedDelivery()?.location }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>📅 Date :</strong>
+          <span>{{ selectedDelivery()?.deliveryDate | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>📦 Statut :</strong>
+          <span class="status-pill" [ngClass]="selectedDelivery()?.status?.toLowerCase()">
+            {{ selectedDelivery()?.status }}
+          </span>
+        </div>
+        <div class="detail-row" *ngIf="selectedDelivery()?.description">
+          <strong>💬 Instructions :</strong>
+          <p class="modal-desc"><em>{{ selectedDelivery()?.description }}</em></p>
+        </div>
+        <div class="detail-row">
+          <strong>🏃‍♂️ Livreur :</strong>
+          <span>{{ selectedDelivery()?.deliveryPerson || 'Aucun' }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="onCloseDetails()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
