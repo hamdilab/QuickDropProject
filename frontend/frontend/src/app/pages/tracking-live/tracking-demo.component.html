@@ -1,0 +1,214 @@
+<div class="tracking-demo-page">
+  <!-- Header -->
+  <div class="demo-header">
+    <h1>🚀 Démo Tracking Service</h1>
+    <p>Simulation en temps réel des livreurs et commandes</p>
+  </div>
+
+  <!-- Controls -->
+  <div class="demo-controls">
+    <button
+      class="control-btn primary"
+      (click)="startSimulation()"
+      [disabled]="isSimulating"
+    >
+      {{ isSimulating ? "⏹️ En cours" : "▶️ Démarrer Simulation" }}
+    </button>
+
+    <button
+      class="control-btn secondary"
+      (click)="stopSimulation()"
+      [disabled]="!isSimulating"
+    >
+      ⏹️ Arrêter Simulation
+    </button>
+
+    <button class="control-btn info" (click)="createDemoOrder()">
+      📦 Créer Commande Démo
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-number">{{ drivers.length }}</span>
+      <span class="stat-label">Livreurs Actifs</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ getAvailableDrivers() }}</span>
+      <span class="stat-label">Disponibles</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ getDeliveringDrivers() }}</span>
+      <span class="stat-label">En Livraison</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ orders.length }}</span>
+      <span class="stat-label">Commandes Actives</span>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="demo-grid">
+    <!-- Drivers Section -->
+    <div class="drivers-section">
+      <h2 class="section-title">🚗 Livreurs en Temps Réel</h2>
+
+      <div *ngIf="drivers.length === 0" class="empty-state">
+        <div class="empty-state-icon">🚫</div>
+        <p>Aucun livreur actif. Lancez la simulation !</p>
+      </div>
+
+      <div *ngFor="let driver of drivers" class="driver-card">
+        <div class="driver-header">
+          <span class="driver-id">#{{ driver.driverId }}</span>
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-available': driver.status === 'AVAILABLE',
+              'status-delivering': driver.status === 'DELIVERING',
+              'status-offline': driver.status === 'OFFLINE',
+            }"
+          >
+            {{ getStatusLabel(driver.status) }}
+          </span>
+        </div>
+
+        <div class="driver-details">
+          <div class="detail-item">
+            <span class="detail-label">📍 Longitude:</span>
+            <span class="detail-value">{{
+              driver.longitude | number: "1.4-4"
+            }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">📍 Latitude:</span>
+            <span class="detail-value">{{
+              driver.latitude | number: "1.4-4"
+            }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">🚀 Vitesse:</span>
+            <span class="detail-value"
+              >{{ driver.speed | number: ".0-0" }} km/h</span
+            >
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">🧭 Cap:</span>
+            <span class="detail-value"
+              >{{ driver.heading | number: ".0-0" }}°</span
+            >
+          </div>
+          <div class="detail-item" *ngIf="driver.currentOrderId">
+            <span class="detail-label">📦 Commande:</span>
+            <span class="detail-value">{{ driver.currentOrderId }}</span>
+          </div>
+        </div>
+
+        <div class="status-selector">
+          <select
+            class="status-dropdown"
+            (change)="onDriverStatusChange(driver.driverId, $event)"
+            ,
+            ,
+            ,
+          >
+            <option value="AVAILABLE">🟢 Disponible</option>
+            <option value="DELIVERING">🔴 En livraison</option>
+            <option value="OFFLINE">⚫ Hors ligne</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="orders-section">
+      <h2 class="section-title">📦 Commandes en Cours</h2>
+
+      <div *ngIf="orders.length === 0" class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <p>Aucune commande active. Créez une commande démo !</p>
+      </div>
+
+      <div *ngFor="let order of orders" class="order-card">
+        <div class="order-header">
+          <span class="order-id">#{{ order.orderId }}</span>
+          <span
+            class="order-status"
+            [style.background]="getStatusColor(order.status) + '20'"
+            [style.color]="getStatusColor(order.status)"
+          >
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+
+        <div class="order-details">
+          <div class="order-detail-row">
+            <span>🚚 Livreur:</span>
+            <strong>{{ order.driverId }}</strong>
+          </div>
+          <div class="order-detail-row" *ngIf="order.estimatedArrivalMinutes">
+            <span>⏱️ ETA:</span>
+            <strong>{{ order.estimatedArrivalMinutes }} min</strong>
+          </div>
+          <div class="order-detail-row" *ngIf="order.pickupTime">
+            <span>🕐 Collecte:</span>
+            <strong>{{ formatTime(order.pickupTime) }}</strong>
+          </div>
+          <div class="order-detail-row" *ngIf="order.actualDeliveryTime">
+            <span>✅ Livraison:</span>
+            <strong>{{ formatTime(order.actualDeliveryTime) }}</strong>
+          </div>
+        </div>
+
+        <div class="order-actions">
+          <button
+            *ngIf="order.status === 'PENDING'"
+            class="action-btn small btn-warning"
+            (click)="updateOrderStatus(order.orderId, 'PICKING_UP')"
+          >
+            🏪 Collecter
+          </button>
+          <button
+            *ngIf="order.status === 'PICKING_UP'"
+            class="action-btn small btn-info"
+            (click)="updateOrderStatus(order.orderId, 'IN_TRANSIT')"
+          >
+            🚚 Livrer
+          </button>
+          <button
+            *ngIf="order.status === 'IN_TRANSIT'"
+            class="action-btn small btn-success"
+            (click)="markAsDelivered(order.orderId)"
+          >
+            ✅ Terminer
+          </button>
+        </div>
+
+        <!-- Events Timeline -->
+        <div
+          *ngIf="order.events && order.events.length > 0"
+          style="
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #a7f3d0;
+          "
+        >
+          <div
+            style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem"
+          >
+            📜 Historique:
+          </div>
+          <div *ngFor="let event of order.events.slice(-3)">
+            <div style="font-size: 0.8rem">
+              <strong>{{ event.description }}</strong>
+              <span style="color: #9ca3af">
+                - {{ formatTime(event.timestamp) }}</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -57,6 +57,15 @@ export const routes: Routes = [
     data: { roles: ['LIVREUR', 'ADMIN'] },
   },
   {
+    path: 'tracking-demo',
+    loadComponent: () =>
+      import('./pages/tracking-live/tracking-demo.component').then(
+        (m) => m.TrackingDemoComponent,
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: [] },
+  },
+  {
     path: 'suivi-commande',
     loadComponent: () =>
       import('./pages/tracking-live/order-tracking.component').then(

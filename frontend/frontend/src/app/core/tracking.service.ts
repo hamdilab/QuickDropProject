@@ -77,7 +77,7 @@ export interface NearbyDriver {
 
 @Injectable({ providedIn: 'root' })
 export class TrackingService {
-  private baseUrl = 'http://localhost:8084/tracking-service';
+  private baseUrl = 'http://localhost:8086/tracking-service';
   private stompClient: any = null;
   private locationUpdates = new Subject<DriverLocation>();
   private orderUpdates = new Subject<OrderTracking>();
@@ -222,21 +222,62 @@ export class TrackingService {
   // ==================== WEBSOCKET ====================
 
   connectWebSocket(): void {
-    const socket = new SockJS(`${this.baseUrl}/ws-tracking`);
-    this.stompClient = {
-      connected: true,
-      subscribe: (topic: string, callback: any) => {
-        console.log('Subscribed to:', topic);
-      },
-      send: (destination: string, headers: any, body: string) => {
-        console.log('Sent to:', destination);
-      },
-    };
+    try {
+      const socket = new SockJS(`${this.baseUrl}/ws-tracking`);
 
-    setTimeout(() => {
-      this.isConnected.next(true);
-      console.log('WebSocket connected (simulated)');
-    }, 500);
+      // Import STOMP manuellement si disponible
+      if (typeof window !== 'undefined' && (window as any).Stomp) {
+        const Stomp = (window as any).Stomp;
+        this.stompClient = Stomp.over(socket);
+
+        this.stompClient.connect({}, () => {
+          this.isConnected.next(true);
+          console.log('WebSocket STOMP connected successfully');
+
+          // Souscrire aux topics par défaut
+          this.stompClient.subscribe('/topic/drivers', (message: any) => {
+            const location = JSON.parse(message.body);
+            this.locationUpdates.next(location);
+          });
+
+          this.stompClient.subscribe('/topic/orders', (message: any) => {
+            const order = JSON.parse(message.body);
+            this.orderUpdates.next(order);
+          });
+        });
+      } else {
+        // Fallback sans STOMP - utilisation directe du socket
+        this.stompClient = {
+          connected: false,
+          subscribe: (topic: string, callback: any) => {
+            socket.onmessage = (event: MessageEvent<any>) => {
+              const data = JSON.parse(event.data);
+              if (data.driverId) {
+                this.locationUpdates.next(data);
+              } else if (data.orderId) {
+                this.orderUpdates.next(data);
+              }
+            };
+          },
+          send: (destination: string, headers: any, body: string) => {
+            socket.send(body);
+          },
+        };
+
+        socket.onopen = () => {
+          this.isConnected.next(true);
+          console.log('WebSocket direct connection established');
+        };
+
+        socket.onerror = (error: any) => {
+          console.error('WebSocket error:', error);
+          this.isConnected.next(false);
+        };
+      }
+    } catch (error) {
+      console.error('Failed to connect WebSocket:', error);
+      this.isConnected.next(false);
+    }
   }
 
   disconnectWebSocket(): void {
