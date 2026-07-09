@@ -22,6 +22,11 @@ export const routes: Routes = [
     data: { roles: [] }
   },
   {
+    path: 'mes-commandes',
+    loadComponent: () => import('./pages/mes-commandes/mes-commandes.component').then(m => m.MesCommandesComponent),
+    data: { roles: [] }
+  },
+  {
     path: 'livreur',
     loadComponent: () => import('./pages/livreur-status/livreur-status.component').then(m => m.LivreurStatusComponent),
     canActivate: [AuthGuard],
@@ -64,35 +69,4 @@ export const routes: Routes = [
     data: { roles: ['ADMIN', 'RESTAURATEUR'] }
   },
   { path: '**', redirectTo: 'dashboard' }
-  {
-    path: 'catalog/browse',
-    loadComponent: () => import('./pages/catalog/catalog-browse/catalog-browse.component').then(m => m.CatalogBrowseComponent),
-    data: { roles: [] }
-  },
-  {
-    path: 'catalog/categories',
-    loadComponent: () => import('./pages/catalog/categories/categories.component').then(m => m.CategoriesComponent),
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'catalog/restaurants',
-    loadComponent: () => import('./pages/catalog/restaurants/restaurants.component').then(m => m.RestaurantsComponent),
-    data: { roles: ['ADMIN', 'RESTAURATEUR'] }
-  },
-  {
-    path: 'catalog/menus',
-    loadComponent: () => import('./pages/catalog/menus/menus.component').then(m => m.MenusComponent),
-    data: { roles: ['ADMIN', 'RESTAURATEUR'] }
-  },
-  {
-    path: 'catalog/produits',
-    loadComponent: () => import('./pages/catalog/produits/produits.component').then(m => m.ProduitsComponent),
-    data: { roles: ['ADMIN', 'RESTAURATEUR'] }
-  },
-  {
-    path: 'catalog/ingredients',
-    loadComponent: () => import('./pages/catalog/ingredients/ingredients.component').then(m => m.IngredientsComponent),
-    data: { roles: ['ADMIN', 'RESTAURATEUR'] }
-  },
-  { path: '**', redirectTo: 'historique' } // 👇 Redirige aussi ici en cas de chemin inconnu
 ];

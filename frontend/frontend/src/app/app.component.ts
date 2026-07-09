@@ -31,6 +31,11 @@ import { UserApiService } from './core/user-api.service';
               <span class="icon">👤</span> Mon Profil
             </a>
           </li>
+          <li>
+            <a routerLink="/mes-commandes" routerLinkActive="active">
+              <span class="icon">📦</span> Mes commandes
+            </a>
+          </li>
           <li *ngIf="auth.isLivreur() || auth.isAdmin()">
             <a routerLink="/livreur" routerLinkActive="active">
               <span class="icon">🚴</span> Statut Livreur
