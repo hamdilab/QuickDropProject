@@ -1,4 +1,4 @@
-package com.example.apigateway;
+package org.example.getway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
