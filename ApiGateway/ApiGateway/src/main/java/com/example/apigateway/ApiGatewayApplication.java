@@ -24,8 +24,8 @@ public class ApiGatewayApplication {
                 .route("delivery-service", r -> r.path("/api/v1/delivery/**")
                         .filters(f -> f.stripPrefix(2))
                         .uri("lb://DELIVERY-SERVICE"))
-                .route("order-service", r -> r.path("/api/v1/order/**")
-                        .filters(f -> f.stripPrefix(2))
+                .route("order-service", r -> r.path("/order-service/**")
+                        .filters(f -> f.stripPrefix(1)) // Supprime uniquement "/order-service"
                         .uri("lb://ORDER-SERVICE"))
                 .build();
     }
