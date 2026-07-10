@@ -41,7 +41,7 @@ export const routes: Routes = [
   {
     path: 'catalog/categories',
     loadComponent: () => import('./pages/catalog/categories/categories.component').then(m => m.CategoriesComponent),
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['ADMIN', 'RESTAURATEUR'] }
   },
   {
     path: 'catalog/restaurants',
