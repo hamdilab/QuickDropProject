@@ -172,24 +172,36 @@ public class DriverLocationServiceImpl implements DriverLocationService {
 
     @Override
     public DriverLocationResponseDTO updateDriverStatus(
-        String driverId,
-        String status
+            String driverId,
+            String status
     ) {
         log.debug("Updating driver {} status to: {}", driverId, status);
 
         DriverLocation driverLocation = driverLocationRepository
-            .findByDriverId(driverId)
-            .orElseThrow(() ->
-                new RuntimeException(
-                    "Driver location not found for ID: " + driverId
-                )
-            );
+                .findByDriverId(driverId)
+                .orElseThrow(() ->
+                    new RuntimeException(
+                        "Driver location not found for ID: " + driverId
+                    )
+                );
 
         driverLocation.setStatus(status);
         driverLocation.setTimestamp(LocalDateTime.now());
 
         DriverLocation saved = driverLocationRepository.save(driverLocation);
         return convertToResponseDTO(saved, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DriverLocationResponseDTO> getAllDrivers() {
+        log.debug("Getting all drivers from database");
+
+        List<DriverLocation> allDrivers = driverLocationRepository.findAll();
+        return allDrivers
+                .stream()
+                .map(driver -> convertToResponseDTO(driver, null))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -1,0 +1,114 @@
+[
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345a" },
+    "driverId": "DRV001",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.1815, 36.8065]
+    },
+    "speed": 25.5,
+    "heading": 45,
+    "accuracy": 8.0,
+    "timestamp": { "$date": "2026-01-10T14:30:00Z" },
+    "status": "AVAILABLE",
+    "currentOrderId": null
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345b" },
+    "driverId": "DRV002",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.3250, 36.8775]
+    },
+    "speed": 0.0,
+    "heading": 120,
+    "accuracy": 5.0,
+    "timestamp": { "$date": "2026-01-10T14:28:00Z" },
+    "status": "AVAILABLE",
+    "currentOrderId": null
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345c" },
+    "driverId": "DRV003",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.1950, 36.8400]
+    },
+    "speed": 32.0,
+    "heading": 270,
+    "accuracy": 10.0,
+    "timestamp": { "$date": "2026-01-10T14:29:00Z" },
+    "status": "DELIVERING",
+    "currentOrderId": "ORD-TN-001"
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345d" },
+    "driverId": "DRV004",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.2367, 36.8422]
+    },
+    "speed": 18.5,
+    "heading": 90,
+    "accuracy": 7.0,
+    "timestamp": { "$date": "2026-01-10T14:31:00Z" },
+    "status": "AVAILABLE",
+    "currentOrderId": null
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345e" },
+    "driverId": "DRV005",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.2800, 36.8100]
+    },
+    "speed": 28.0,
+    "heading": 180,
+    "accuracy": 6.0,
+    "timestamp": { "$date": "2026-01-10T14:30:30Z" },
+    "status": "DELIVERING",
+    "currentOrderId": "ORD-TN-002"
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012345f" },
+    "driverId": "DRV006",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.3500, 36.8500]
+    },
+    "speed": 0.0,
+    "heading": 0,
+    "accuracy": 12.0,
+    "timestamp": { "$date": "2026-01-10T14:25:00Z" },
+    "status": "OFFLINE",
+    "currentOrderId": null
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f67890123460" },
+    "driverId": "DRV007",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.1700, 36.7950]
+    },
+    "speed": 22.0,
+    "heading": 315,
+    "accuracy": 9.0,
+    "timestamp": { "$date": "2026-01-10T14:31:15Z" },
+    "status": "AVAILABLE",
+    "currentOrderId": null
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f67890123461" },
+    "driverId": "DRV008",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [10.2100, 36.8200]
+    },
+    "speed": 35.0,
+    "heading": 60,
+    "accuracy": 5.5,
+    "timestamp": { "$date": "2026-01-10T14:30:45Z" },
+    "status": "DELIVERING",
+    "currentOrderId": "ORD-TN-003"
+  }
+]

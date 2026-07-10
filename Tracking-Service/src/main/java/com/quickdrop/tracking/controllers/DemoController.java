@@ -53,7 +53,7 @@ public class DemoController {
             orderTrackingRepository.deleteAll();
             driverLocationRepository.deleteByDriverIdIn(List.of("driver1", "driver2", "driver3"));
 
-            // Step 1: Create/assign driver at restaurant
+            // Step 1: Create/assign driver at restaurant (Tunis Centre)
             DriverLocationDTO driver = new DriverLocationDTO();
             driver.setDriverId("driver1");
             driver.setStatus("DELIVERING");
@@ -61,7 +61,8 @@ public class DemoController {
             driver.setHeading(0);
             driver.setAccuracy(10.0);
             driver.setCurrentOrderId("DEMO-ORDER-001");
-            driver.setCoordinates(new DriverLocationDTO.Coordinates(7.2620, 43.7102));
+            // Tunis coordinates
+            driver.setCoordinates(new DriverLocationDTO.Coordinates(10.1815, 36.8065));
 
             driverLocationService.updateDriverLocation(driver);
             log.info("Driver assigned at restaurant");
@@ -72,10 +73,10 @@ public class DemoController {
             order.setDriverId("driver1");
             order.setCustomerId("customer1");
             
-            OrderTrackingDTO.LocationDTO restaurantLocation = new OrderTrackingDTO.LocationDTO(7.2620, 43.7102);
+            OrderTrackingDTO.LocationDTO restaurantLocation = new OrderTrackingDTO.LocationDTO(10.1815, 36.8065); // Tunis
             order.setRestaurantLocation(restaurantLocation);
             
-            OrderTrackingDTO.LocationDTO customerLocation = new OrderTrackingDTO.LocationDTO(7.2800, 43.6950);
+            OrderTrackingDTO.LocationDTO customerLocation = new OrderTrackingDTO.LocationDTO(10.3250, 36.8775); // La Marsa
             order.setCustomerLocation(customerLocation);
             
             order.setCurrentDriverLocation(restaurantLocation);
@@ -149,13 +150,6 @@ public class DemoController {
             driver.setCoordinates(new DriverLocationDTO.Coordinates(positions[0], positions[1]));
 
             driverLocationService.updateDriverLocation(driver);
-
-            // Update order ETA
-            try {
-                orderTrackingService.updateOrderLocation("DEMO-ORDER-001", positions[0], positions[1]);
-            } catch (Exception e) {
-                log.warn("Could not update order location: {}", e.getMessage());
-            }
 
             log.info("Driver moved to [{}, {}], ETA: {} minutes", positions[0], positions[1], eta);
             return ResponseEntity.ok("Step " + step + " completed. Driver at [" + positions[0] + ", " + positions[1] + "]");

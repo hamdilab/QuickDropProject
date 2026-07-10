@@ -113,4 +113,11 @@ public class DriverLocationController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/all")
+    @Operation(summary = "Get all drivers", description = "Get current location of all drivers in the system")
+    public ResponseEntity<List<DriverLocationResponseDTO>> getAllDrivers() {
+        List<DriverLocationResponseDTO> allDrivers = driverLocationService.getAllDrivers();
+        return ResponseEntity.ok(allDrivers);
+    }
 }

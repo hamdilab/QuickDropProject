@@ -46,4 +46,9 @@ public interface DriverLocationService {
      * Update driver status.
      */
     DriverLocationResponseDTO updateDriverStatus(String driverId, String status);
+
+    /**
+     * Get all drivers in the system.
+     */
+    List<DriverLocationResponseDTO> getAllDrivers();
 }

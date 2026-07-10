@@ -1,0 +1,191 @@
+[
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012347a" },
+    "driverId": "DRV003",
+    "orderId": "ORD-TN-001",
+    "locationPoints": [
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1815, 36.8065]
+        },
+        "timestamp": { "$date": "2026-01-10T14:15:00Z" },
+        "speed": 0.0,
+        "heading": 0
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1850, 36.8100]
+        },
+        "timestamp": { "$date": "2026-01-10T14:17:00Z" },
+        "speed": 28.0,
+        "heading": 45
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1900, 36.8200]
+        },
+        "timestamp": { "$date": "2026-01-10T14:20:00Z" },
+        "speed": 32.0,
+        "heading": 60
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1920, 36.8300]
+        },
+        "timestamp": { "$date": "2026-01-10T14:25:00Z" },
+        "speed": 30.0,
+        "heading": 45
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1950, 36.8400]
+        },
+        "timestamp": { "$date": "2026-01-10T14:29:00Z" },
+        "speed": 32.0,
+        "heading": 45
+      }
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [10.1815, 36.8065]
+    },
+    "destinationLocation": {
+      "type": "Point",
+      "coordinates": [10.2367, 36.8422]
+    },
+    "startTime": { "$date": "2026-01-10T14:15:00Z" },
+    "endTime": null,
+    "totalDistanceKm": 3.2,
+    "totalDurationMinutes": null,
+    "status": "IN_PROGRESS",
+    "averageSpeed": 30.5
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012347b" },
+    "driverId": "DRV005",
+    "orderId": "ORD-TN-002",
+    "locationPoints": [
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2367, 36.8422]
+        },
+        "timestamp": { "$date": "2026-01-10T14:20:00Z" },
+        "speed": 0.0,
+        "heading": 0
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2500, 36.8350]
+        },
+        "timestamp": { "$date": "2026-01-10T14:24:00Z" },
+        "speed": 30.0,
+        "heading": 90
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2650, 36.8250]
+        },
+        "timestamp": { "$date": "2026-01-10T14:27:00Z" },
+        "speed": 28.0,
+        "heading": 120
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2800, 36.8100]
+        },
+        "timestamp": { "$date": "2026-01-10T14:30:30Z" },
+        "speed": 28.0,
+        "heading": 180
+      }
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [10.2367, 36.8422]
+    },
+    "destinationLocation": {
+      "type": "Point",
+      "coordinates": [10.3250, 36.8775]
+    },
+    "startTime": { "$date": "2026-01-10T14:20:00Z" },
+    "endTime": null,
+    "totalDistanceKm": 5.8,
+    "totalDurationMinutes": null,
+    "status": "IN_PROGRESS",
+    "averageSpeed": 28.7
+  },
+  {
+    "_id": { "$oid": "67a1b2c3d4e5f6789012347c" },
+    "driverId": "DRV001",
+    "orderId": "ORD-TN-000",
+    "locationPoints": [
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1815, 36.8065]
+        },
+        "timestamp": { "$date": "2026-01-10T12:00:00Z" },
+        "speed": 0.0,
+        "heading": 0
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.1900, 36.8150]
+        },
+        "timestamp": { "$date": "2026-01-10T12:05:00Z" },
+        "speed": 25.0,
+        "heading": 45
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2000, 36.8250]
+        },
+        "timestamp": { "$date": "2026-01-10T12:12:00Z" },
+        "speed": 28.0,
+        "heading": 60
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2100, 36.8350]
+        },
+        "timestamp": { "$date": "2026-01-10T12:20:00Z" },
+        "speed": 26.0,
+        "heading": 45
+      },
+      {
+        "location": {
+          "type": "Point",
+          "coordinates": [10.2200, 36.8450]
+        },
+        "timestamp": { "$date": "2026-01-10T12:30:00Z" },
+        "speed": 0.0,
+        "heading": 45
+      }
+    ],
+    "startLocation": {
+      "type": "Point",
+      "coordinates": [10.1815, 36.8065]
+    },
+    "destinationLocation": {
+      "type": "Point",
+      "coordinates": [10.2200, 36.8450]
+    },
+    "startTime": { "$date": "2026-01-10T12:00:00Z" },
+    "endTime": { "$date": "2026-01-10T12:30:00Z" },
+    "totalDistanceKm": 4.5,
+    "totalDurationMinutes": 30,
+    "status": "COMPLETED",
+    "averageSpeed": 27.0
+  }
+]
