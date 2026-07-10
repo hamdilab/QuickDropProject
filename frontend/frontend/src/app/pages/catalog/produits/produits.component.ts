@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogApiService, Ingredient, Menu, Produit, Restaurant } from '../../../core/catalog-api.service';
-import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-produits',
@@ -205,18 +204,11 @@ export class ProduitsComponent implements OnInit {
   newPrix = 0;
   form: Produit = this.emptyForm();
 
-  constructor(private api: CatalogApiService, public auth: AuthService) {}
+  constructor(private api: CatalogApiService) {}
 
   ngOnInit(): void {
     this.api.getRestaurants().subscribe({
-      next: (data) => {
-        if (this.auth.isRestaurateur() && !this.auth.isAdmin()) {
-          const myId = this.auth.getDbUserId();
-          this.restaurants = data.filter(r => r.vendeurId === myId);
-        } else {
-          this.restaurants = data;
-        }
-      },
+      next: (data) => (this.restaurants = data),
       error: () => {}
     });
     this.api.getIngredients().subscribe({
