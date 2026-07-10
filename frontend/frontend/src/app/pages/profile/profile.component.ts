@@ -134,6 +134,7 @@ export class ProfileComponent implements OnInit {
           this.user = found;
           // Set the role from DB so isAdmin(), isLivreur(), etc. work correctly
           this.auth.setUserDbRole(found.role);
+          this.auth.setUserDbId(found.id!);
           this.loadProfile(found.id!);
         } else {
           // User is authenticated via Keycloak but not yet in MySQL — build from token
