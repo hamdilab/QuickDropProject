@@ -20,13 +20,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint for WebSocket connection
+        // Endpoint for WebSocket connection with SockJS fallback
         registry
             .addEndpoint("/ws-tracking")
-            .setAllowedOriginPatterns("*")
-            .withSockJS(); // Enable SockJS fallback
+            .setAllowedOriginPatterns("http://localhost:4200", "http://localhost:8080", "*")
+            .withSockJS()
+            .setHeartbeatTime(10000);
 
-        // Endpoint for WebSocket without SockJS
-        registry.addEndpoint("/ws-tracking").setAllowedOriginPatterns("*");
+        // Endpoint for WebSocket without SockJS (pure WebSocket)
+        registry
+            .addEndpoint("/ws-tracking")
+            .setAllowedOriginPatterns("http://localhost:4200", "http://localhost:8080", "*");
     }
 }

@@ -46,4 +46,9 @@ public interface DriverLocationRepository extends MongoRepository<DriverLocation
      * Delete old location records (older than specified days).
      */
     long deleteByTimestampBefore(java.time.LocalDateTime timestamp);
+
+    /**
+     * Delete drivers by IDs.
+     */
+    void deleteByDriverIdIn(List<String> driverIds);
 }

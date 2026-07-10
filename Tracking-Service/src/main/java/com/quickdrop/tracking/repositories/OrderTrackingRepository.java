@@ -42,4 +42,9 @@ public interface OrderTrackingRepository extends MongoRepository<OrderTracking, 
      * Delete old tracking records (older than specified days).
      */
     long deleteByLastUpdatedBefore(java.time.LocalDateTime timestamp);
+
+    /**
+     * Delete all order tracking records.
+     */
+    void deleteAll();
 }

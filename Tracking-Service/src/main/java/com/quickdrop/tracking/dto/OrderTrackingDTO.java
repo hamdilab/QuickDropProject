@@ -28,6 +28,12 @@ public class OrderTrackingDTO {
     @NotNull(message = "Customer location is required")
     private LocationDTO customerLocation;
 
+    private LocationDTO currentDriverLocation;
+    
+    private String status;
+    
+    private Integer estimatedArrivalMinutes;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
