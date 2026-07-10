@@ -1,0 +1,50 @@
+{
+  "realm": "JobBoardKeycloack",
+  "enabled": true,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrator role"
+      },
+      {
+        "name": "LIVREUR",
+        "description": "Delivery user role"
+      },
+      {
+        "name": "RESTAURATEUR",
+        "description": "Restaurant owner role"
+      },
+      {
+        "name": "CLIENT",
+        "description": "Customer role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "frontend-client",
+      "name": "QuickDrop Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ]
+}
