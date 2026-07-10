@@ -105,23 +105,51 @@ services:
       gateway:
         condition: service_started
 
-#  delivery-service:
-#    build:
-#      context: ./Delivery-service
-#    container_name: quickdrop-delivery-service
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/QuickDrop?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: ""
-#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-#      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
-#    ports:
-#      - "8081:8081"
-#    depends_on:
-#      mysql:
-#        condition: service_healthy
-#      eureka:
-#        condition: service_started
+  delivery-service:
+    build:
+      context: ./Delivery-service
+    container_name: quickdrop-delivery-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/QuickDrop?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE: http://eureka:8761/eureka/
+      JAVA_TOOL_OPTIONS: -Deureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka:
+        condition: service_started
+      gateway:
+        condition: service_started
+
+  order-service:
+    build:
+      context: ./Order-service
+    container_name: quickdrop-order-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE: http://eureka:8761/eureka/
+      JAVA_TOOL_OPTIONS: -Deureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka/
+    ports:
+      - "8083:8082"
+    depends_on:
+      config-server:
+        condition: service_started
+      eureka:
+        condition: service_started
+      gateway:
+        condition: service_started
+
 
   gateway:
     build:
