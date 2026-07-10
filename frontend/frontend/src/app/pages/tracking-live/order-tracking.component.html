@@ -1,218 +1,194 @@
-<div class="order-tracking-page">
+<div class="tracking-page">
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1>📦 Suivi de Commande</h1>
-      <p>Suivez vos commandes en temps réel</p>
+      <h1>📦 Suivi de Commande en Temps Réel</h1>
+      <p>Suivez votre livraison étape par étape</p>
     </div>
-    <div class="search-box">
+    
+    <!-- Search Box -->
+    <div class="search-box" *ngIf="!isTracking">
       <input
         [(ngModel)]="orderIdInput"
-        placeholder="Numéro de commande..."
+        placeholder="Ex: ORD001, ORD002, ORD003"
         (keydown.enter)="trackOrder()"
+        [disabled]="isLoading"
       />
-      <button (click)="trackOrder()" [disabled]="isLoading">
-        {{ isLoading ? "..." : "🔍" }}
+      <button (click)="trackOrder()" [disabled]="isLoading || !orderIdInput.trim()">
+        {{ isLoading ? 'Recherche...' : '🔍 Suivre' }}
       </button>
     </div>
   </div>
 
-  <div class="content">
-    <!-- Orders List -->
-    <div class="orders-section">
-      <h2>Mes Commandes</h2>
-
-      <div *ngIf="isLoading" class="loading">
-        <div class="spinner"></div>
-        <p>Chargement...</p>
+  <!-- Info Card - Show available orders -->
+  <div *ngIf="!isTracking && !isLoading" class="info-card-orders">
+    <h3>💡 Commandes disponibles pour test :</h3>
+    <div class="orders-grid">
+      <div class="order-item" (click)="orderIdInput = 'ORD001'; trackOrder();">
+        <strong>ORD001</strong>
+        <span>🏪 La Petite Maison → Promenade des Anglais</span>
+        <span style="color: #8b5cf6;">🚚 En livraison</span>
       </div>
-
-      <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
-        <p>Vous n'avez pas de commandes actives</p>
+      <div class="order-item" (click)="orderIdInput = 'ORD002'; trackOrder();">
+        <strong>ORD002</strong>
+        <span>🏪 Chez Pippo → Rue de la Liberté</span>
+        <span style="color: #f59e0b;">⏳ En attente</span>
       </div>
+      <div class="order-item" (click)="orderIdInput = 'ORD003'; trackOrder();">
+        <strong>ORD003</strong>
+        <span>🏪 Le Got → Blvd Mont Boron</span>
+        <span style="color: #10b981;">✅ Livré</span>
+      </div>
+    </div>
+  </div>
 
-      <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
-        <div
-          *ngFor="let order of orders"
-          (click)="selectOrder(order)"
-          class="order-card"
-          [class.selected]="selectedOrder?.orderId === order.orderId"
-        >
-          <div class="order-header">
-            <span class="order-id">Commande #{{ order.orderId }}</span>
-            <span
-              class="status-chip"
-              [style.background]="getStatusColor(order.status) + '20'"
-              [style.color]="getStatusColor(order.status)"
-            >
-              {{ getStatusLabel(order.status) }}
-            </span>
-          </div>
-          <div class="order-body">
-            <div class="order-info">
-              <div class="info-item">
-                <span class="label">Livreur:</span>
-                <span class="value">{{ order.driverId }}</span>
-              </div>
-              <div class="info-item" *ngIf="order.estimatedArrivalMinutes">
-                <span class="label">ETA:</span>
-                <span class="value"
-                  >{{ order.estimatedArrivalMinutes }} min</span
-                >
-              </div>
-            </div>
-            <div
-              class="order-timeline"
-              *ngIf="order.events && order.events.length > 0"
-            >
-              <div
-                class="timeline-item"
-                *ngFor="let event of order.events.slice(-2)"
-              >
-                <div
-                  class="timeline-dot"
-                  [style.background]="getStatusColor(order.status)"
-                ></div>
-                <div class="timeline-content">
-                  <div class="timeline-event">{{ event.description }}</div>
-                  <div class="timeline-time">
-                    {{ formatTime(event.timestamp) }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement de votre commande...</p>
+  </div>
+
+  <!-- Tracking View -->
+  <div *ngIf="isTracking && order" class="tracking-content">
+    <!-- Status Banner -->
+    <div class="status-banner" [style.borderLeftColor]="getStatusColor(order.status)">
+      <div class="status-icon">🚚</div>
+      <div class="status-info">
+        <h2>{{ getStatusLabel(order.status) }}</h2>
+        <p>Commande #{{ order.orderId }} • {{ order.items.length }} article(s)</p>
       </div>
     </div>
 
-    <!-- Order Details Modal -->
-    <div
-      *ngIf="selectedOrder"
-      class="order-details-overlay"
-      (click)="closeOrderDetails()"
-    >
-      <div class="order-details" (click)="$event.stopPropagation()">
-        <button class="close-btn" (click)="closeOrderDetails()">×</button>
-
-        <div class="details-header">
-          <h2>Commande #{{ selectedOrder.orderId }}</h2>
-          <span
-            class="status-chip large"
-            [style.background]="getStatusColor(selectedOrder.status) + '20'"
-            [style.color]="getStatusColor(selectedOrder.status)"
-          >
-            {{ getStatusLabel(selectedOrder.status) }}
-          </span>
+    <div class="main-grid">
+      <!-- Left Column: Map -->
+      <div class="map-column">
+        <div #mapContainer id="mapContainer" class="live-map"></div>
+        
+        <div class="eta-card" *ngIf="etaMinutes > 0 && order.status !== 'DELIVERED'">
+          <div class="eta-circle">
+            <span class="eta-number">{{ etaMinutes }}</span>
+            <span class="eta-unit">minutes</span>
+          </div>
+          <p class="eta-label">Arrivée estimée</p>
+          <p class="eta-distance">Distance: {{ distanceKm }} km</p>
         </div>
+      </div>
 
-        <div class="details-content">
-          <!-- ETA -->
-          <div
-            class="eta-section"
-            *ngIf="selectedOrder.estimatedArrivalMinutes"
-          >
-            <div class="eta-circle">
-              <div class="eta-time">
-                {{ selectedOrder.estimatedArrivalMinutes }}
-              </div>
-              <div class="eta-label">minutes</div>
-            </div>
-            <p>Arrivée estimée</p>
-          </div>
-
-          <!-- Location Info -->
-          <div
-            class="location-section"
-            *ngIf="
-              selectedOrder.restaurantLocation || selectedOrder.customerLocation
-            "
-          >
-            <h3>📍 Locations</h3>
-            <div class="location-item" *ngIf="selectedOrder.restaurantLocation">
-              <strong>Restaurant:</strong>
-              <span
-                >{{
-                  selectedOrder.restaurantLocation.latitude | number: "1.4"
-                }},
-                {{
-                  selectedOrder.restaurantLocation.longitude | number: "1.4"
-                }}</span
-              >
-            </div>
-            <div class="location-item" *ngIf="selectedOrder.customerLocation">
-              <strong>Destination:</strong>
-              <span
-                >{{ selectedOrder.customerLocation.latitude | number: "1.4" }},
-                {{
-                  selectedOrder.customerLocation.longitude | number: "1.4"
-                }}</span
-              >
-            </div>
-            <div
-              class="location-item"
-              *ngIf="selectedOrder.currentDriverLocation"
+      <!-- Right Column: Details -->
+      <div class="details-column">
+        <!-- Timeline -->
+        <div class="timeline-section">
+          <h3>📜 Historique de la livraison</h3>
+          
+          <div class="timeline">
+            <div 
+              class="timeline-item" 
+              [class.completed]="true" 
+              *ngFor="let event of order.events; let i = index"
+              [class.current]="i === order.events.length - 1 && order.status !== 'DELIVERED'"
             >
-              <strong>Livreur:</strong>
-              <span
-                >{{
-                  selectedOrder.currentDriverLocation.latitude | number: "1.4"
-                }},
-                {{
-                  selectedOrder.currentDriverLocation.longitude | number: "1.4"
-                }}</span
-              >
-            </div>
-          </div>
-
-          <!-- Timeline -->
-          <div
-            class="timeline-section"
-            *ngIf="selectedOrder.events && selectedOrder.events.length > 0"
-          >
-            <h3>Historique</h3>
-            <div class="timeline">
-              <div
-                class="timeline-item"
-                *ngFor="let event of selectedOrder.events"
-              >
-                <div
-                  class="timeline-dot"
-                  [style.background]="getStatusColor(selectedOrder.status)"
-                ></div>
-                <div class="timeline-content">
-                  <div class="timeline-event">{{ event.description }}</div>
-                  <div class="timeline-time">
-                    {{ formatTime(event.timestamp) }}
-                  </div>
-                  <div
-                    class="timeline-eta"
-                    *ngIf="event.etaMinutes !== undefined"
-                  >
-                    ETA: {{ event.etaMinutes }} min
-                  </div>
+              <div class="timeline-dot" [class.active]="i === order.events.length - 1"></div>
+              <div class="timeline-content">
+                <div class="timeline-event">{{ event.description }}</div>
+                <div class="timeline-time">{{ formatTime(event.timestamp) }}</div>
+                <div class="timeline-eta" *ngIf="event.etaMinutes !== undefined">
+                  ETA à ce moment: {{ event.etaMinutes }} min
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Timing -->
-          <div class="timing-section">
-            <div class="timing-item">
-              <strong>Collecte:</strong>
-              <span>{{
-                selectedOrder.pickupTime
-                  ? formatTime(selectedOrder.pickupTime)
-                  : "-"
-              }}</span>
+        <!-- Order Info Card -->
+        <div class="info-card">
+          <h3>ℹ️ Informations</h3>
+          
+          <div class="info-group">
+            <h4>🏪 Restaurant</h4>
+            <div class="info-row">
+              <span class="label">Nom:</span>
+              <strong>{{ order.restaurant?.name }}</strong>
             </div>
-            <div class="timing-item" *ngIf="selectedOrder.actualDeliveryTime">
-              <strong>Livraison:</strong>
-              <span>{{ formatTime(selectedOrder.actualDeliveryTime) }}</span>
+            <div class="info-row">
+              <span class="label">Adresse:</span>
+              <span>{{ order.restaurant?.address }}</span>
             </div>
+          </div>
+
+          <div class="info-group">
+            <h4>🏠 Client</h4>
+            <div class="info-row">
+              <span class="label">Adresse:</span>
+              <span>{{ order.customer?.address }}</span>
+            </div>
+          </div>
+
+          <div class="info-group" *ngIf="order.driver">
+            <h4>👤 Livreur</h4>
+            <div class="info-row">
+              <span class="label">Nom:</span>
+              <strong>{{ order.driver.name }}</strong>
+            </div>
+            <div class="info-row">
+              <span class="label">Téléphone:</span>
+              <strong>{{ order.driver.phone }}</strong>
+            </div>
+            <div class="info-row" *ngIf="currentDriverLocation">
+              <span class="label">⚡ Vitesse:</span>
+              <strong>{{ currentDriverLocation.speed }} km/h</strong>
+            </div>
+          </div>
+          
+          <div class="info-group">
+            <h4>🍽️ Commande</h4>
+            <div class="info-row" *ngFor="let item of order.items">
+              <span>{{ item }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Total:</span>
+              <strong>{{ order.total }} €</strong>
+            </div>
+          </div>
+          
+          <div class="info-row" *ngIf="order.pickupTime">
+            <span class="label">🏪 Collecte:</span>
+            <strong>{{ formattedPickupTime }}</strong>
+          </div>
+          
+          <div class="info-row" *ngIf="order.actualDeliveryTime">
+            <span class="label">✅ Livraison:</span>
+            <strong>{{ formattedDeliveryTime }}</strong>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="actions-card">
+          <h3>⚡ Actions rapides</h3>
+          
+          <div class="action-buttons">
+            <button class="btn btn-primary" (click)="resetSearch()">
+              🔄 Nouvelle recherche
+            </button>
+            
+            <button class="btn btn-secondary" (click)="windowOpen()" *ngIf="order.customer?.latitude">
+              🗺️ Ouvrir dans Google Maps
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+  }
+}
+</style>

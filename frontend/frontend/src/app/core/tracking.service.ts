@@ -77,7 +77,7 @@ export interface NearbyDriver {
 
 @Injectable({ providedIn: 'root' })
 export class TrackingService {
-  private baseUrl = 'http://localhost:8086/tracking-service';
+  private baseUrl = 'http://localhost:8086';
   private stompClient: any = null;
   private locationUpdates = new Subject<DriverLocation>();
   private orderUpdates = new Subject<OrderTracking>();
@@ -317,5 +317,19 @@ export class TrackingService {
       `${this.baseUrl}/api/v1/eta/calculate`,
       request,
     );
+  }
+
+  // ==================== DEMO ENDPOINTS ====================
+
+  startDemoDelivery(): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/api/v1/demo/start-delivery`, {});
+  }
+
+  simulateDeliveryStep(step: string): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/api/v1/demo/simulate-progress/${step}`, {});
+  }
+
+  completeDemoDelivery(): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/api/v1/demo/complete-delivery`, {});
   }
 }
