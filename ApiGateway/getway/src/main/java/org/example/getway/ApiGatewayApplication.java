@@ -33,10 +33,8 @@ public class ApiGatewayApplication {
                 .route("order-service", r -> r.path("/order-service/**")
                         .filters(f -> f.stripPrefix(1)) // Supprime uniquement "/order-service"
                         .uri("lb://ORDER-SERVICE"))
-                .route("delivery-service", r -> r.path("/delivery-service/**")
-                        .filters(f -> f.stripPrefix(1)
-                                .dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
-                                .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST"))
+                .route("delivery-service", r -> r.path("/api/v1/delivery/**")
+                        .filters(f -> f.stripPrefix(3)) // 👈 Modifié à 3 pour supprimer /api/v1/delivery
                         .uri("lb://DELIVERY-SERVICE"))
                 .build();
     }
