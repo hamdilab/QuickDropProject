@@ -145,6 +145,7 @@ export class DashboardComponent implements OnInit {
 
         if (found) {
           this.auth.setUserDbRole(found.role);
+          this.auth.setUserDbId(found.id!);
         } else {
           // Fallback: map Keycloak realm roles to app roles
           const kcRoles = this.auth.getRoles();

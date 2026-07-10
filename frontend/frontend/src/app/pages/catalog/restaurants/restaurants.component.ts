@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogApiService, Categorie, Restaurant } from '../../../core/catalog-api.service';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-restaurants',
@@ -113,7 +114,7 @@ import { CatalogApiService, Categorie, Restaurant } from '../../../core/catalog-
             <label>Email</label>
             <input [(ngModel)]="form.email" type="email" placeholder="contact@resto.fr" />
           </div>
-          <div class="form-group">
+          <div class="form-group" *ngIf="auth.isAdmin()">
             <label>ID Vendeur</label>
             <input [(ngModel)]="form.vendeurId" type="number" min="1" placeholder="1" />
           </div>
@@ -198,7 +199,7 @@ export class RestaurantsComponent implements OnInit {
   toDelete: Restaurant | null = null;
   form: Restaurant = this.emptyForm();
 
-  constructor(private api: CatalogApiService) {}
+  constructor(private api: CatalogApiService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -216,7 +217,13 @@ export class RestaurantsComponent implements OnInit {
 
   loadRestaurants(): void {
     this.api.getRestaurants().subscribe({
-      next: (data) => this.loadRestaurantsWithCategories(data),
+      next: (data) => {
+        if (this.auth.isRestaurateur() && !this.auth.isAdmin()) {
+          const myId = this.auth.getDbUserId();
+          data = data.filter(r => r.vendeurId === myId);
+        }
+        this.loadRestaurantsWithCategories(data);
+      },
       error: () => this.showMsg('Erreur lors du chargement', 'error')
     });
   }
@@ -309,6 +316,9 @@ export class RestaurantsComponent implements OnInit {
       this.showMsg('Le téléphone doit contenir exactement 8 chiffres', 'error');
       return;
     }
+    if (this.auth.isRestaurateur() && !this.auth.isAdmin()) {
+      this.form.vendeurId = this.auth.getDbUserId() || undefined;
+    }
     this.saving = true;
     const req = this.editing
       ? this.api.updateRestaurant(this.editing.id!, this.form)
@@ -369,6 +379,11 @@ export class RestaurantsComponent implements OnInit {
 
     const addRestaurants = (items: Restaurant[]) => {
       items.forEach((restaurant) => {
+        if (this.auth.isRestaurateur() && !this.auth.isAdmin()) {
+          if (restaurant.vendeurId !== this.auth.getDbUserId()) {
+            return;
+          }
+        }
         if (restaurant.id) byId.set(restaurant.id, restaurant);
         else withoutId.push(restaurant);
       });

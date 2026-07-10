@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogApiService, Menu, Restaurant } from '../../../core/catalog-api.service';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-menus',
@@ -142,11 +143,18 @@ export class MenusComponent implements OnInit {
   toDelete: Menu | null = null;
   form: Menu = this.emptyForm();
 
-  constructor(private api: CatalogApiService) {}
+  constructor(private api: CatalogApiService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.api.getRestaurants().subscribe({
-      next: (data) => (this.restaurants = data),
+      next: (data) => {
+        if (this.auth.isRestaurateur() && !this.auth.isAdmin()) {
+          const myId = this.auth.getDbUserId();
+          this.restaurants = data.filter(r => r.vendeurId === myId);
+        } else {
+          this.restaurants = data;
+        }
+      },
       error: () => this.showMsg('Erreur chargement restaurants', 'error')
     });
   }

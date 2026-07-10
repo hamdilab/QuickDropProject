@@ -31,14 +31,34 @@ import { UserApiService } from './core/user-api.service';
               <span class="icon">👤</span> Mon Profil
             </a>
           </li>
-          <li>
-            <a routerLink="/mes-commandes" routerLinkActive="active">
-              <span class="icon">📦</span> Mes commandes
-            </a>
-          </li>
           <li *ngIf="auth.isLivreur() || auth.isAdmin()">
             <a routerLink="/livreur" routerLinkActive="active">
               <span class="icon">🚴</span> Statut Livreur
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/restaurants" routerLinkActive="active">
+              <span class="icon">🍽️</span> Restaurants
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/categories" routerLinkActive="active">
+              <span class="icon">🏷️</span> Catégories
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/menus" routerLinkActive="active">
+              <span class="icon">📋</span> Menus
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/produits" routerLinkActive="active">
+              <span class="icon">🍕</span> Produits
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/ingredients" routerLinkActive="active">
+              <span class="icon">🥬</span> Ingrédients
             </a>
           </li>
         </ul>
@@ -74,6 +94,7 @@ export class AppComponent implements OnInit {
         );
         if (found) {
           this.auth.setUserDbRole(found.role);
+          this.auth.setUserDbId(found.id!);
         } else {
           const kcRoles = this.auth.getRoles();
           const mappedRole = kcRoles
