@@ -29,7 +29,7 @@ public class ApiGatewayApplication {
                 .route("Livreur", r -> r.path("/api/livreurs/**")
                         .uri("lb://user"))
                 .route("catalog-service", r -> r.path("/catalog/**")
-                        .uri("lb://CATALOGSERVICE"))
+                        .uri("lb://catalog-service"))
 
                 .route("delivery-service", r -> r.path("/delivery-service/**")
                         .filters(f -> f.stripPrefix(1)
