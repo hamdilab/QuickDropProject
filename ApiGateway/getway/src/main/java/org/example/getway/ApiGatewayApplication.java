@@ -30,7 +30,9 @@ public class ApiGatewayApplication {
                         .uri("lb://user"))
                 .route("catalog-service", r -> r.path("/catalog/**")
                         .uri("lb://catalog-service"))
-
+                .route("order-service", r -> r.path("/order-service/**")
+                        .filters(f -> f.stripPrefix(1)) // Supprime uniquement "/order-service"
+                        .uri("lb://ORDER-SERVICE"))
                 .route("delivery-service", r -> r.path("/delivery-service/**")
                         .filters(f -> f.stripPrefix(1)
                                 .dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
