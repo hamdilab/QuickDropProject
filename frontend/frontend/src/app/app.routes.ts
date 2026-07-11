@@ -22,6 +22,12 @@ export const routes: Routes = [
     data: { roles: [] }
   },
   {
+    path: 'mes-commandes',
+    loadComponent: () => import('./pages/mes-commandes/mes-commandes.component').then(m => m.MesCommandesComponent),
+    canActivate: [AuthGuard],
+    data: { roles: [] }
+  },
+  {
     path: 'livreur',
     loadComponent: () => import('./pages/livreur-status/livreur-status.component').then(m => m.LivreurStatusComponent),
     canActivate: [AuthGuard],
