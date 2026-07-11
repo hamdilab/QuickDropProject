@@ -3,6 +3,7 @@ package Controllers;
 import Models.Delivery;
 import Models.DeliveryStatus;
 import Service.DeliveryService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,5 +39,22 @@ public class DeliveryController {
     @PutMapping("/{id}/status")
     public ResponseEntity<Delivery> updateStatus(@PathVariable Long id, @RequestParam DeliveryStatus status) {
         return ResponseEntity.ok(deliveryService.updateStatus(id, status));
+    }
+
+    // GET : http://localhost:8081/Delivery/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<Delivery> getDeliveryById(@PathVariable Long id) {
+        return deliveryService.findById(id) // Assure-toi que cette méthode existe dans ton Service
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/test-feign/{id}")
+    public Object testFeign(@PathVariable Long id) {
+        // Cela va forcer l'appel à ta méthode de service qui utilise OpenFeign
+        Models.Delivery mockDelivery = new Models.Delivery();
+        mockDelivery.setId(id); // On lui passe l'ID de la commande à chercher
+
+        return deliveryService.createDelivery(mockDelivery);
     }
 }

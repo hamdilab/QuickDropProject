@@ -7,8 +7,17 @@ export class AuthService {
   // Role resolved from DB after login — used as fallback when Keycloak realm roles
   // don't perfectly match the application role names (ADMIN, CLIENT, LIVREUR, RESTAURATEUR).
   private dbRole: string | null = null;
+  private dbUserId: number | null = null;
 
   constructor(private keycloak: KeycloakService) {}
+
+  setUserDbId(id: number): void {
+    this.dbUserId = id;
+  }
+
+  getDbUserId(): number | null {
+    return this.dbUserId;
+  }
 
   /** Call this once we resolve the user record from the DB. */
   setUserDbRole(role: string): void {

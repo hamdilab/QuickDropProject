@@ -12,7 +12,7 @@ import { UserApiService } from './core/user-api.service';
     <div class="app-shell">
       <nav class="sidebar">
         <div class="logo">
-          <span class="logo-icon">🚀</span>
+          <span class="logo-icon">🍔</span>
           <span class="logo-text">QuickDrop</span>
         </div>
         <ul class="nav-links">
@@ -34,6 +34,31 @@ import { UserApiService } from './core/user-api.service';
           <li *ngIf="auth.isLivreur() || auth.isAdmin()">
             <a routerLink="/livreur" routerLinkActive="active">
               <span class="icon">🚴</span> Statut Livreur
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/restaurants" routerLinkActive="active">
+              <span class="icon">🍽️</span> Restaurants
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/categories" routerLinkActive="active">
+              <span class="icon">🏷️</span> Catégories
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/menus" routerLinkActive="active">
+              <span class="icon">📋</span> Menus
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/produits" routerLinkActive="active">
+              <span class="icon">🍕</span> Produits
+            </a>
+          </li>
+          <li *ngIf="auth.isRestaurateur() || auth.isAdmin()">
+            <a routerLink="/catalog/ingredients" routerLinkActive="active">
+              <span class="icon">🥬</span> Ingrédients
             </a>
           </li>
         </ul>
@@ -59,7 +84,6 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserAndResolveRole();
   }
-
   loadUserAndResolveRole(): void {
     const tokenInfo = this.auth.getTokenInfo();
     this.api.getAllUsers().subscribe({
@@ -70,6 +94,7 @@ export class AppComponent implements OnInit {
         );
         if (found) {
           this.auth.setUserDbRole(found.role);
+          this.auth.setUserDbId(found.id!);
         } else {
           const kcRoles = this.auth.getRoles();
           const mappedRole = kcRoles
@@ -104,7 +129,6 @@ export class AppComponent implements OnInit {
       }
     });
   }
-
   getInitials(): string {
     const name = this.auth.getUsername();
     return name ? name.substring(0, 2).toUpperCase() : 'U';

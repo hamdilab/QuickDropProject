@@ -1,0 +1,62 @@
+### 1. CRÉER UNE PREMIÈRE COMMANDE (POST)
+POST http://localhost:8084/order-service/api/commandes
+Content-Type: application/json
+
+{
+  "clientId": "USER_TUNIS_99",
+  "restaurantId": "RESTO_CHILI_12",
+  "produitId": "PIZZA_MEGA",
+  "quantite": 2,
+  "prixTotal": 45.5,
+  "statut": "EN_ATTENTE"
+}
+
+###
+
+### 2. CRÉER UNE DEUXIÈME COMMANDE (Pour avoir du contenu)
+POST http://localhost:8080/order-service/api/commandes
+Content-Type: application/json
+
+{
+  "clientId": "USER_SFAX_44",
+  "restaurantId": "RESTO_BURGER_05",
+  "produitId": "MENU_MAXI",
+  "quantite": 1,
+  "prixTotal": 18.0,
+  "statut": "EN_ATTENTE"
+}
+
+###
+
+### 3. LISTER TOUTES LES COMMANDES (GET - Consultation globale)
+GET http://localhost:8080/order-service/api/commandes
+
+###
+
+### 4. RECHERCHER UNE COMMANDE PAR SON ID (GET - Consultation unique)
+# On cherche la commande avec l'ID 1
+GET http://localhost:8080/order-service/api/commandes/1
+
+###
+
+### 5. METTRE À JOUR LE STATUT D'UNE COMMANDE (PUT - Update)
+# On passe la commande numéro 1 au statut "PREPAREE"
+PUT http://localhost:8080/order-service/api/commandes/1/statut?statut=PREPAREE
+
+###
+
+### 6. VÉRIFIER SI L'UPDATE A MARCHÉ (GET par ID)
+# On revérifie l'ID 1 pour voir si le statut a changé
+GET http://localhost:8080/order-service/api/commandes/1
+
+###
+
+### 7. SUPPRIMER UNE COMMANDE (DELETE)
+# On supprime la commande numéro 2
+DELETE http://localhost:8080/order-service/api/commandes/2
+
+###
+
+### 8. VÉRIFIER LA SUPPRESSION (GET - Lister à nouveau)
+# La commande 2 ne doit plus apparaître dans la liste
+GET http://localhost:8080/order-service/api/commandes

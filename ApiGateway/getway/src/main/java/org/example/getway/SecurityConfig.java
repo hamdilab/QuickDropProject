@@ -12,12 +12,20 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
     @Bean
+<<<<<<< HEAD
     public SecurityWebFilterChain securityWebFilterChain(
         ServerHttpSecurity HttpSecurity
     ) {
         return HttpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
+=======
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity HttpSecurity)
+    {
+        return HttpSecurity
+                .cors(Customizer.withDefaults())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+>>>>>>> origin/azizyounesmerge
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .pathMatchers("/eureka/**").permitAll()
                         .anyExchange().authenticated()
                 ).oauth2ResourceServer((oauth) -> oauth

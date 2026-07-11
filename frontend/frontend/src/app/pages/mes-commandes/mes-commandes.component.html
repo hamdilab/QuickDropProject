@@ -1,0 +1,637 @@
+<div class="page">
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-spinner">
+    Chargement des commandes...
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading">
+    <div class="page-header">
+      <div>
+        <h1>📦 Mes commandes</h1>
+        <p>Retrouvez ici toutes vos commandes passées depuis votre panier.</p>
+      </div>
+      <div class="orders-counter">
+        <span class="counter-value">{{ commandes.length }}</span>
+        <span class="counter-label">commande(s)</span>
+      </div>
+    </div>
+
+    <!-- Create Button -->
+    <div style="margin-bottom: 1.5rem;">
+      <button (click)="openCreateForm()" class="btn btn-primary">
+        ➕ Créer une nouvelle commande
+      </button>
+      <button (click)="loadCommandes()" class="btn btn-secondary" style="margin-left: 0.5rem;">
+        🔄 Rafraîchir
+      </button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ countByStatus('EN_ATTENTE') + countByStatus('EN_PREPARATION') }}</span>
+          <span class="stat-label">En cours</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚴</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ countByStatus('EN_LIVRAISON') }}</span>
+          <span class="stat-label">En livraison</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ countByStatus('LIVREE') }}</span>
+          <span class="stat-label">Livrées</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalDepense | number:'1.2-2' }} €</span>
+          <span class="stat-label">Total dépensé</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="orders-list">
+      <div class="order-card" *ngFor="let cmd of commandes" (click)="openDetails(cmd)">
+        <div class="order-card-header">
+          <div class="restaurant-info">
+            <span class="restaurant-emoji">{{ cmd.emoji }}</span>
+            <div>
+              <h3>{{ cmd.restaurant }}</h3>
+              <span class="order-num">{{ cmd.numero }}</span>
+            </div>
+          </div>
+          <span class="status-badge" [ngClass]="'status-' + cmd.statut.toLowerCase()">
+            {{ getStatusLabel(cmd.statut) }}
+          </span>
+        </div>
+
+        <div class="order-card-body">
+          <div class="order-meta">
+            <span>📅 {{ cmd.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+            <span>📍 {{ cmd.adresseLivraison }}</span>
+          </div>
+          <ul class="order-items-preview">
+            <li *ngFor="let item of cmd.articles">
+              {{ item.quantite }}× {{ item.nom }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="order-card-footer">
+          <span class="items-count">{{ cmd.articles.length }} article(s)</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <button class="btn-icon-delete" (click)="deleteCommande(cmd.id); $event.stopPropagation()" title="Supprimer">🗑️</button>
+            <span class="order-total">{{ cmd.total | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Details -->
+<div class="modal-overlay" *ngIf="selectedCommande" (click)="closeDetails()">
+  <div class="modal modal-xl" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeDetails()">✕</button>
+    <h2>{{ selectedCommande.emoji }} {{ selectedCommande.restaurant }}</h2>
+    <p class="detail-meta">
+      {{ selectedCommande.numero }} · {{ selectedCommande.date | date:'dd/MM/yyyy à HH:mm' }}
+    </p>
+
+    <div class="detail-section">
+      <h3>Statut</h3>
+      <span class="status-badge" [ngClass]="'status-' + selectedCommande.statut.toLowerCase()">
+        {{ getStatusLabel(selectedCommande.statut) }}
+      </span>
+    </div>
+
+    <div class="detail-section">
+      <h3>Adresse de livraison</h3>
+      <p>📍 {{ selectedCommande.adresseLivraison }}</p>
+    </div>
+
+    <div class="detail-section">
+      <h3>Articles commandés</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Qté</th>
+              <th>Prix unit.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedCommande.articles">
+              <td>{{ item.nom }}</td>
+              <td>{{ item.quantite }}</td>
+              <td>{{ item.prixUnitaire | number:'1.2-2' }} €</td>
+              <td>{{ item.quantite * item.prixUnitaire | number:'1.2-2' }} €</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="detail-totals">
+      <div class="total-row">
+        <span>Sous-total</span>
+        <span>{{ getSousTotal(selectedCommande) | number:'1.2-2' }} €</span>
+      </div>
+      <div class="total-row">
+        <span>Frais de livraison</span>
+        <span>{{ selectedCommande.fraisLivraison | number:'1.2-2' }} €</span>
+      </div>
+      <div class="total-row total-final">
+        <span>Total</span>
+        <span>{{ selectedCommande.total | number:'1.2-2' }} €</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger" (click)="deleteCommande(selectedCommande.id)">🗑️ Supprimer</button>
+      <button class="btn btn-secondary" (click)="closeDetails()" style="margin-left: 0.5rem;">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Commande Modal -->
+<div class="modal-overlay" *ngIf="showCreateForm" (click)="closeCreateForm()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeCreateForm()">✕</button>
+    <h2>📝 Créer une nouvelle commande</h2>
+
+    <form (ngSubmit)="submitCreateForm()">
+      <div class="form-group">
+        <label for="clientId">ID Client *</label>
+        <input 
+          type="text" 
+          id="clientId" 
+          name="clientId"
+          [(ngModel)]="formData.clientId" 
+          placeholder="Ex: USER_TUNIS_99"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="restaurantId">ID Restaurant *</label>
+        <input 
+          type="text" 
+          id="restaurantId" 
+          name="restaurantId"
+          [(ngModel)]="formData.restaurantId" 
+          placeholder="Ex: RESTO_CHILI_12"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="produitId">ID Produit *</label>
+        <input 
+          type="text" 
+          id="produitId" 
+          name="produitId"
+          [(ngModel)]="formData.produitId" 
+          placeholder="Ex: PIZZA_MEGA"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="quantite">Quantité *</label>
+          <input 
+            type="number" 
+            id="quantite" 
+            name="quantite"
+            [(ngModel)]="formData.quantite" 
+            min="1"
+            required
+          />
+        </div>
+
+        <div class="form-group form-group-right">
+          <label for="prixTotal">Prix Total (€) *</label>
+          <input 
+            type="number" 
+            id="prixTotal" 
+            name="prixTotal"
+            [(ngModel)]="formData.prixTotal" 
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="statut">Statut</label>
+        <select id="statut" name="statut" [(ngModel)]="formData.statut">
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="EN_PREPARATION">En préparation</option>
+          <option value="EN_LIVRAISON">En livraison</option>
+          <option value="LIVREE">Livrée</option>
+          <option value="ANNULEE">Annulée</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">✅ Créer la commande</button>
+        <button type="button" class="btn btn-secondary" (click)="closeCreateForm()" style="margin-left: 0.5rem;">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Modal */
+  .modal {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-lg {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .modal-xl {
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+    padding: 0.5rem;
+  }
+
+  .close-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .modal h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  /* Loading Spinner */
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+  }
+
+  .error-message {
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-lg);
+    color: #dc2626;
+    margin-bottom: 1rem;
+  }
+
+  .orders-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    min-width: 120px;
+  }
+
+  .counter-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-hover);
+  }
+
+  .counter-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .order-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 12px rgba(249, 115, 22, 0.06);
+  }
+
+  .order-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(249, 115, 22, 0.35);
+    box-shadow: var(--shadow);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .status-en_attente {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .status-en_preparation {
+    background: rgba(59, 130, 246, 0.12);
+    color: #1d4ed8;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  .status-en_livraison {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .status-livree {
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
+
+  .status-annulee {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+
+  .btn-icon-delete {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    transition: transform 0.2s;
+  }
+
+  .btn-icon-delete:hover {
+    transform: scale(1.2);
+  }
+
+  /* Form Styles */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-hover);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  }
+
+  .form-group-right {
+    margin-left: 1rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .form-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .modal {
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+    }
+
+    .modal-lg,
+    .modal-xl {
+      max-width: 100%;
+    }
+
+    .close-btn {
+      top: 0.75rem;
+      right: 0.75rem;
+      font-size: 1.25rem;
+    }
+
+    .modal h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    form {
+      gap: 1rem;
+    }
+
+    .form-group {
+      gap: 0.35rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.6rem 0.5rem;
+      font-size: 16px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .form-group-right {
+      margin-left: 0;
+    }
+
+    .form-actions {
+      gap: 0.35rem;
+    }
+
+    .form-actions button {
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .modal-overlay {
+      padding: 0.5rem;
+    }
+
+    .modal {
+      padding: 1rem;
+      max-height: 95vh;
+    }
+
+    .modal h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      gap: 0.75rem;
+    }
+
+    .form-group {
+      gap: 0.25rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.55rem 0.45rem;
+      font-size: 16px;
+      border-radius: var(--radius-sm);
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+      gap: 0.5rem;
+    }
+
+    .form-actions button {
+      width: 100%;
+      min-width: auto;
+      padding: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    /* Améliorer la zone de saisie sur mobile */
+    input[type="number"],
+    input[type="text"] {
+      min-height: 44px;
+    }
+
+    select {
+      min-height: 44px;
+    }
+  }
+</style>

@@ -44,6 +44,7 @@ public class Restaurant {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(nullable = false)
@@ -66,7 +67,6 @@ public class Restaurant {
     @JoinColumn(name = "categorie_id")
     private Categorie categorie;
 
-    @Column(nullable = false)
     private Long vendeurId;
 
     @PrePersist
