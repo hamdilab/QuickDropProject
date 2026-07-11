@@ -46,15 +46,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['LIVREUR', 'ADMIN'] },
   },
-  // TRACKING SERVICE PAGES
-  // TRACKING SERVICE PAGES - PUBLIC FOR TESTING
   {
     path: 'tracking',
     loadComponent: () =>
       import('./pages/tracking/tracking-map.component').then(
         (m) => m.TrackingMapComponent,
       ),
-    data: { roles: [] }, // ✅ PUBLIC - NO AUTH REQUIRED
+    data: { roles: [] },
   },
   {
     path: 'tracking-demo',
@@ -62,7 +60,7 @@ export const routes: Routes = [
       import('./pages/tracking-live/tracking-demo.component').then(
         (m) => m.TrackingDemoComponent,
       ),
-    data: { roles: [] }, // ✅ PUBLIC - NO AUTH REQUIRED
+    data: { roles: [] },
   },
   {
     path: 'suivi-commande',
