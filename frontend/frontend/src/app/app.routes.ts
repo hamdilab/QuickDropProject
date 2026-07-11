@@ -71,7 +71,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/catalog/ingredients/ingredients.component').then(m => m.IngredientsComponent),
     data: { roles: ['ADMIN', 'RESTAURATEUR'] }
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'dashboard' },
   {
     path: 'tracking-demo',
     loadComponent: () =>
