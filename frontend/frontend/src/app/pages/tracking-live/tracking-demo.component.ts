@@ -28,6 +28,7 @@ export class TrackingDemoComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('mapContainer') mapContainerRef?: ElementRef;
   private map: L.Map | null = null;
   private driverMarkers: { [key: string]: L.Marker } = {};
+  private driverAddedToMap: { [key: string]: boolean } = {}; // Track which drivers are on map
 
   // Driver simulation
   drivers: DriverLocation[] = [];
@@ -58,13 +59,17 @@ export class TrackingDemoComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.trackingService.connectWebSocket();
 
-    // Only subscribe to order updates for this customer's orders
+    console.log('=== TRACKING DEMO: OnInit started ===');
+
+    // Subscribe to order updates
     this.trackingService
       .subscribeToOrderUpdates('')
       .pipe(takeUntil(this.destroy$))
       .subscribe((order) => {
-        // Only process if this order belongs to current customer (customer1)
-        if (order.customerId === 'customer1') {
+        console.log('Order update received:', order);
+        
+        // Only process if this order belongs to current customer (CUST-001)
+        if (order.customerId === 'CUST-001' || order.customerId === 'customer1') {
           const index = this.orders.findIndex((o) => o.orderId === order.orderId);
           if (index !== -1) {
             this.orders[index] = order;
@@ -72,21 +77,8 @@ export class TrackingDemoComponent implements OnInit, OnDestroy, AfterViewInit {
             this.orders.push(order);
           }
           
-          // Fetch ONLY the driver associated with this order
-          if (order.driverId) {
-            this.trackingService.getDriverLocation(order.driverId).subscribe({
-              next: (driver) => {
-                // Replace all drivers with only this one
-                this.drivers = [driver];
-                
-                // Update marker on map
-                if (this.map) {
-                  this.updateDriverMarker(driver);
-                }
-              },
-              error: (err) => console.error('Error fetching driver:', err)
-            });
-          }
+          // Reload all drivers when order updates
+          this.loadAllDrivers();
         }
       });
       
@@ -95,45 +87,165 @@ export class TrackingDemoComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadDemoData(): void {
-    console.log('Loading customer orders...');
+    console.log('=== LOAD DEMO DATA: Starting ===');
     
     // Clear previous data
     this.drivers = [];
     this.orders = [];
     this.driverMarkers = {};
+    this.driverAddedToMap = {};
     
-    // Load orders ONLY for current customer (matching your MongoDB data: 'customer-001')
-    this.trackingService.getOrdersByCustomer('customer-001').subscribe({
-      next: (orders) => {
-        console.log('Loaded customer orders:', orders);
-        this.orders = orders;
+    // Step 1: Load ALL drivers (both AVAILABLE and DELIVERING) from Tunisia
+    this.loadAllDrivers();
+    
+    // Step 2: Load customer orders
+    this.loadCustomerOrders();
+  }
+  
+  loadAllDrivers(): void {
+    console.log('🚚 LOADING ALL DRIVERS IN TUNISIA...');
+    
+    // Fetch all available drivers in Tunisia
+    this.trackingService.getDriversByStatus('AVAILABLE').subscribe({
+      next: (availableDrivers) => {
+        console.log(`✅ Found ${availableDrivers.length} AVAILABLE drivers`);
+        this.drivers = [...availableDrivers];
         
-        // For each order, fetch ONLY its associated driver
-        orders.forEach(order => {
-          if (order.driverId) {
-            console.log('Fetching driver for order:', order.orderId);
-            this.trackingService.getDriverLocation(order.driverId).subscribe({
-              next: (driver) => {
-                console.log('Loaded driver:', driver.driverId);
-                // Only keep this driver (replace all others)
-                const exists = this.drivers.find(d => d.driverId === driver.driverId);
-                if (!exists) {
-                  this.drivers.push(driver);
-                  
-                  // Add to map after a short delay
-                  setTimeout(() => {
-                    if (!this.driverMarkers[driver.driverId] && this.map) {
-                      this.addDriverToMap(driver);
-                    }
-                  }, 100);
-                }
-              },
-              error: (err) => console.error(`Error loading driver ${order.driverId}:`, err)
-            });
+        // Also fetch delivering drivers
+        this.trackingService.getDriversByStatus('DELIVERING').subscribe({
+          next: (deliveringDrivers) => {
+            console.log(`✅ Found ${deliveringDrivers.length} DELIVERING drivers`);
+            
+            // Combine both lists
+            const allDrivers = [...this.drivers, ...deliveringDrivers];
+            this.drivers = allDrivers;
+            
+            console.log(`📍 Total drivers to display: ${allDrivers.length}`);
+            
+            // Add all drivers to map
+            setTimeout(() => {
+              if (!this.map) {
+                console.warn('⚠️ Map not initialized yet, retrying in 500ms');
+                setTimeout(() => this.addDriversToMap(), 500);
+                return;
+              }
+              
+              this.addDriversToMap();
+              
+              // Center map to show all drivers in Tunisia
+              this.fitAllDrivers();
+              
+              console.log('✅ All drivers added to map successfully!');
+            }, 300);
+          },
+          error: (err) => {
+            console.error('❌ Error loading delivering drivers:', err);
+            // Even if delivering drivers fail, we still have available ones
+            setTimeout(() => {
+              if (this.map) {
+                this.addDriversToMap();
+                this.fitAllDrivers();
+              }
+            }, 300);
           }
         });
       },
-      error: (err) => console.error('Error loading orders:', err)
+      error: (err) => {
+        console.error('❌ Error loading available drivers:', err);
+        // Try alternative approach
+        this.tryAlternativeDriverLoading();
+      }
+    });
+  }
+  
+  addDriversToMap(): void {
+    console.log('➕ Adding', this.drivers.length, 'drivers to map...');
+    
+    this.drivers.forEach(driver => {
+      if (!this.driverAddedToMap[driver.driverId] && this.map) {
+        console.log(`   ➕ Adding ${driver.driverId} at (${driver.latitude}, ${driver.longitude})`);
+        this.addDriverToMap(driver);
+        this.driverAddedToMap[driver.driverId] = true; // Use the separate tracking object
+      } else {
+        console.log(`   ⏭️  Skipping ${driver.driverId} (already on map)`);
+      }
+    });
+  }
+  
+  tryAlternativeDriverLoading(): void {
+    console.log('🔄 Trying alternative driver loading method...');
+    
+    // Try to get all drivers without filtering by status
+    // This might work if the backend has a different endpoint
+    const endpoints = [
+      `${this.trackingService['baseUrl']}/api/v1/drivers/status/AVAILABLE`,
+      `${this.trackingService['baseUrl']}/api/v1/drivers/status/DELIVERING`
+    ];
+    
+    endpoints.forEach(endpoint => {
+      fetch(endpoint)
+        .then(res => res.json())
+        .then(data => {
+          console.log('Alternative fetch result:', data);
+          if (Array.isArray(data)) {
+            data.forEach(driver => {
+              const exists = this.drivers.find(d => d.driverId === driver.driverId);
+              if (!exists) {
+                this.drivers.push(this.trackingService['mapDriverLocation'](driver));
+              }
+            });
+            
+            setTimeout(() => {
+              if (this.map && this.drivers.length > 0) {
+                this.addDriversToMap();
+                this.fitAllDrivers();
+              }
+            }, 300);
+          }
+        })
+        .catch(err => console.log('Alternative fetch failed for', endpoint, ':', err));
+    });
+  }
+  
+  loadCustomerOrders(): void {
+    console.log('📦 Loading customer orders...');
+    
+    // Try different customer IDs from our seed data
+    const customerIds = ['CUST-001', 'CUST-002', 'CUST-003', 'customer1', 'customer-001'];
+    
+    let loaded = false;
+    
+    customerIds.forEach((customerId, index) => {
+      if (!loaded) {
+        console.log(`🔍 Trying customer ID: ${customerId}`);
+        this.trackingService.getOrdersByCustomer(customerId).subscribe({
+          next: (orders) => {
+            if (orders && orders.length > 0) {
+              console.log(`✅ Found ${orders.length} orders for ${customerId}`);
+              this.orders = orders;
+              loaded = true;
+              
+              // For each order, find its driver in our already-loaded list
+              orders.forEach(order => {
+                if (order.driverId) {
+                  const driver = this.drivers.find(d => d.driverId === order.driverId);
+                  if (driver) {
+                    console.log(`   ✓ Order ${order.orderId} → Driver ${order.driverId} is visible on map`);
+                  } else {
+                    console.log(`   ⚠️  Order ${order.orderId} driver ${order.driverId} not found`);
+                  }
+                }
+              });
+            }
+          },
+          error: () => {
+            if (index === customerIds.length - 1 && !loaded) {
+              console.log('⚠️ No orders found for any customer ID');
+              console.log('💡 Make sure MongoDB has data. Run: ./import-seed-data.sh');
+            }
+          }
+        });
+      }
     });
   }
 
@@ -264,7 +376,7 @@ export class TrackingDemoComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateDriverMarker(driver: DriverLocation): void {
-    if (!this.map || !this.driverMarkers[driver.driverId]) return;
+    if (!this.map || !this.driverAddedToMap[driver.driverId]) return;
 
     const marker = this.driverMarkers[driver.driverId];
     const newLatLng = new L.LatLng(driver.latitude, driver.longitude);

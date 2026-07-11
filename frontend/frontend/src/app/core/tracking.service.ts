@@ -95,9 +95,14 @@ export class TrackingService {
   }
 
   getDriverLocation(driverId: string): Observable<DriverLocation> {
-    return this.http.get<DriverLocation>(
-      `${this.baseUrl}/api/v1/drivers/${driverId}/location`,
-    );
+    return this.http
+      .get<any>(`${this.baseUrl}/api/v1/drivers/${driverId}/location`)
+      .pipe(
+        map((response: any) => {
+          console.log('Driver location for', driverId, ':', response);
+          return this.mapDriverLocation(response);
+        })
+      );
   }
 
   updateDriverStatus(
@@ -111,9 +116,36 @@ export class TrackingService {
   }
 
   getDriversByStatus(status: string): Observable<DriverLocation[]> {
-    return this.http.get<DriverLocation[]>(
-      `${this.baseUrl}/api/v1/drivers/status/${status}`,
-    );
+    return this.http
+      .get<any>(`${this.baseUrl}/api/v1/drivers/status/${status}`)
+      .pipe(
+        map((response: any) => {
+          console.log('Drivers by status response for', status, ':', response);
+          // Handle both array and object responses
+          if (Array.isArray(response)) {
+            return response.map(driver => this.mapDriverLocation(driver));
+          } else if (response && Array.isArray(response.drivers)) {
+            return response.drivers.map((d: any) => this.mapDriverLocation(d));
+          } else {
+            console.warn('Unexpected response format:', response);
+            return [];
+          }
+        })
+      );
+  }
+  
+  private mapDriverLocation(driver: any): DriverLocation {
+    return {
+      driverId: driver.driverId,
+      longitude: driver.longitude,
+      latitude: driver.latitude,
+      speed: driver.speed || 0,
+      heading: driver.heading || 0,
+      accuracy: driver.accuracy || 0,
+      status: driver.status,
+      currentOrderId: driver.currentOrderId,
+      timestamp: driver.timestamp
+    };
   }
 
   findNearbyDrivers(request: NearbyDriversRequest): Observable<NearbyDriver[]> {
@@ -123,6 +155,11 @@ export class TrackingService {
         request,
       )
       .pipe(map((drivers: any) => drivers.drivers || drivers));
+  }
+
+  // Charger tous les livreurs depuis la base de données
+  getAllDrivers(): Observable<DriverLocation[]> {
+    return this.http.get<DriverLocation[]>(`${this.baseUrl}/api/v1/drivers/all`);
   }
 
   // ==================== ORDER TRACKING ====================
